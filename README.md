@@ -1,76 +1,87 @@
-﻿# Douyin Smart Search & AI Content Finder
+﻿# Douyin Smart Search — Central Backend API & AI Multimodal Engine
 
-> **Hệ thống Web Application & AI Đa phương thức (Multimodal AI) tìm kiếm video Douyin thông minh: Hỗ trợ người dùng nhập từ khóa bằng Tiếng Việt (hoặc Tiếng Anh / Tiếng Trung), AI tự động nhận diện ngôn ngữ, phân tích ý định (Intent & Semantic Entities), chuyển ngữ tự nhiên chuẩn văn phong tìm kiếm Douyin (không dịch từng chữ máy móc), quét đa tầng và Re-ranking video Douyin triệu view.**
-
----
-
-## 🌟 Tính Năng Cốt Lõi (Core Features)
-
-### 1. 🇻🇳 Vietnamese → Chinese Smart Douyin Search Engine (Mới)
-- **Tự động nhận diện ngôn ngữ:** Phát hiện `vi` (Tiếng Việt), `zh` (Tiếng Trung), `en` (Tiếng Anh) hoặc chế độ `auto`.
-- **Phân tích Ý định & Thực thể Ngữ nghĩa:** Tách bạch *Subject (chủ thể), Appearance (ngoại hình), Clothing (trang phục), Action (hành động), Scene (bối cảnh), Style (phong cách)*.
-- **Dịch theo Ngữ nghĩa & Douyin Search Idioms:** Không dịch word-by-word máy móc mà ánh xạ sang từ khóa người bản xứ thực tế dùng để tìm trên Douyin.
-- **Phân cấp Từ khóa & Đánh giá Điểm chất lượng (Quality Score 0–100):**
-  - `EXACT` (Điểm 95–100): Ví dụ `美女穿睡衣遮脸`
-  - `HIGH` (Điểm 88–94): Ví dụ `美女睡衣自拍`, `高颜值女生睡衣`
-  - `MEDIUM` (Điểm 75–87): Ví dụ `美女睡衣日常`, `女生睡衣遮脸`
-  - `BROAD` (Điểm 50–74): Ví dụ `美女睡衣`, `睡衣女孩`
-- **Bộ lọc Negative Keywords:** Tự động phát hiện và lọc bỏ các video quảng cáo, shop bán hàng (`广告`, `商品`, `店铺`, `买`).
-- **2 Chế độ Tìm kiếm:** `Auto Mode` (tìm kiếm tức thì) và `Manual Mode` (mở Translation Preview cho phép người dùng tick chọn / sửa / thêm từ khóa).
-
-### 2. 📹 Video & Link Multi-Layer AI Pipeline
-- Tải lên video kéo-thả hoặc dán link Douyin / TikTok.
-- Bóc tách khung hình & âm thanh bằng **FFmpeg**, phân tích ASR lời thoại + OCR phụ đề.
-- Sinh bộ 20 truy vấn phân nhóm và quét toàn diện Douyin.
-
-### 3. 🎯 Multi-Criteria Re-Ranking Engine
-- Công thức xếp hạng chuẩn:
-  $$\text{Score} = 0.30 \times \text{Visual} + 0.25 \times \text{Semantic} + 0.15 \times \text{Action} + 0.10 \times \text{Scene} + 0.15 \times \text{Keyword} + 0.05 \times \text{Query Quality}$$
-- Khử trùng lặp video (Deduplication) theo Video ID, URL và độ tương đồng tiêu đề.
+> **Hệ thống Central Backend API & AI Đa phương thức tập trung cho toàn bộ ứng dụng PC, Web SPA và Android APK.**
+> Toàn bộ logic NLP, AI Analysis, Douyin Crawler, Re-ranking và Secret Keys (`GEMINI_API_KEY`, `DOUYIN_COOKIE`) được bảo mật tuyệt đối tại Backend. Các client (PC, Web, Android) giao tiếp với Backend thông qua REST API `/api/v1/*`.
 
 ---
 
-## 🚀 Hướng Dẫn Khởi Động Nhanh
+## 🏛️ Kiến Trúc Hệ Thống (Central Backend Architecture)
 
-### Cách 1: Chạy Web Application bằng file 1-Click (Khuyên dùng)
-Chỉ cần nhấp đúp chuột vào file:
-```bash
-run_web.bat
+```text
+┌─────────────────┐       ┌─────────────────┐       ┌─────────────────┐
+│   Desktop GUI   │       │   Web SPA UI    │       │   Android APK   │
+│ (CustomTkinter) │       │   (HTML/CSS/JS) │       │ (Kotlin Native) │
+└────────┬────────┘       └────────┬────────┘       └────────┬────────┘
+         │                         │                         │
+         └─────────────────────────┼─────────────────────────┘
+                                   ▼ HTTP / HTTPS
+                    ┌───────────────────────────────┐
+                    │    FASTAPI CENTRAL BACKEND    │
+                    │        Prefix: /api/v1/       │
+                    └──────────────┬────────────────┘
+                                   │
+           ┌───────────────────────┼───────────────────────┐
+           ▼                       ▼                       ▼
+┌─────────────────────┐ ┌─────────────────────┐ ┌─────────────────────┐
+│  AI Engine (Gemini) │ │ Douyin Live Crawler │ │ Multi-Factor Ranker │
+│ & Smart NLP (VN->ZH)│ │ & No-Watermark CDN  │ │ (6-Dimension Scorer)│
+└─────────────────────┘ └─────────────────────┘ └─────────────────────┘
 ```
-Sau đó mở trình duyệt (Chrome / Cốc Cốc / Edge) và truy cập:
-👉 **`http://127.0.0.1:8000`**
 
 ---
 
-### Cách 2: Chạy qua dòng lệnh (Command Line)
+## 🚀 Khởi Động Backend Server
+
+### 1. Cài đặt môi trường
 ```bash
-# 1. Cài đặt thư viện phụ thuộc
+# Cài đặt các thư viện phụ thuộc
 pip install -r requirements.txt
-
-# 2. Khởi động Web Server
-python -m uvicorn backend.app.main:app --host 127.0.0.1 --port 8000 --reload
 ```
 
+### 2. Cấu hình biến môi trường
+Sao chép file `.env.example` thành `.env` và điền API Key:
+```bash
+copy .env.example .env
+```
+
+### 3. Chạy Server
+- **Cách 1 (1-Click):** Nhấp đúp chuột vào file `run_web.bat`
+- **Cách 2 (Dòng lệnh):**
+```bash
+python -m uvicorn backend.app.main:app --host 0.0.0.0 --port 8000 --reload
+```
+
+Sau khi chạy:
+- **Giao diện Web SPA:** `http://127.0.0.1:8000`
+- **Tài liệu Swagger UI:** `http://127.0.0.1:8000/docs`
+- **Tài liệu ReDoc:** `http://127.0.0.1:8000/redoc`
+- **OpenAPI JSON Spec:** `http://127.0.0.1:8000/api/openapi.json`
+
 ---
 
-## 🔌 Danh Sách REST API Endpoints
+## 🔌 Danh Sách Chi Tiết Các REST API Endpoints (`/api/v1/`)
 
-### 🟢 Smart Search APIs (Mới)
-- `POST /api/v1/query/translate`: Phân tích ý định câu tiếng Việt/Anh và sinh bộ từ khóa tiếng Trung preview.
-- `POST /api/v1/query/generate`: Sinh các biến thể query Douyin.
-- `POST /api/v1/search/smart`: Tìm kiếm thông minh toàn diện (chấp nhận tiếng Việt, tự động Re-ranking).
-
-### 🔵 Video & Pipeline APIs
-- `POST /api/v1/search/video`: Tải lên video và chạy pipeline AI.
-- `POST /api/v1/search/url`: Dán link Douyin/TikTok để phân tích.
-- `GET /api/v1/search/{job_id}`: Kiểm tra tiến độ xử lý realtime (0% - 100%).
-- `GET /api/v1/search/{job_id}/results`: Lấy danh sách video Douyin đã xếp hạng & phân trang.
-- `GET /api/v1/history`: Lấy lịch sử tìm kiếm.
+| Method | Endpoint | Mô tả |
+| :--- | :--- | :--- |
+| `POST` | `/api/v1/search` | Tìm kiếm Douyin thông minh (Nhận diện Tiếng Việt/Trung/Anh, lọc trùng lặp & Re-ranking). |
+| `POST` | `/api/v1/analyze/video` | Tải lên video file và kích hoạt Background AI Pipeline (ASR + OCR + Bối cảnh). |
+| `POST` | `/api/v1/analyze/url` | Phân tích video Douyin / TikTok từ đường dẫn URL. |
+| `POST` | `/api/v1/files` | Upload file độc lập trả về metadata & đường dẫn lưu trữ. |
+| `GET` | `/api/v1/jobs/{job_id}` | Polling trạng thái tiến độ thời gian thực của Job (0% - 100%). |
+| `GET` | `/api/v1/search/{job_id}/results` | Lấy danh sách kết quả video Douyin đã xếp hạng và phân trang. |
+| `GET` | `/api/v1/history` | Lấy danh sách lịch sử tìm kiếm & phân tích. |
+| `POST` | `/api/v1/history` | Ghi nhận một phiên tìm kiếm vào lịch sử. |
+| `DELETE` | `/api/v1/history/{id}` | Xóa một phiên lịch sử tìm kiếm. |
+| `GET` | `/api/v1/settings` | Lấy cấu hình hệ thống hiện tại (đã ẩn các ký tự secret key). |
+| `PUT` | `/api/v1/settings` | Cập nhật runtime cấu hình AI Provider, Cookie, Trọng số Re-ranking. |
+| `POST` | `/api/v1/query/translate` | Dịch & xem trước bộ từ khóa tiếng Trung phân nhóm cho câu tiếng Việt. |
+| `POST` | `/api/v1/query/generate` | Sinh các biến thể truy vấn tiếng Trung kèm điểm chất lượng. |
 
 ---
 
-## 🧪 Chạy Kiểm Thử Tự Động (Unit & Integration Tests)
+## 🧪 Kiểm Thử Tự Động (Unit & Integration Tests)
 
+Chạy toàn bộ 31 test cases (Bao gồm Smart Search, Central API, Video Pipeline, Endpoints):
 ```bash
 python -m unittest discover -s backend/tests -p "test_*.py"
 ```
