@@ -14,8 +14,8 @@ from sqlalchemy.orm import Session
 
 class SmartSearchService:
     """
-    End-to-end Smart Search Coordinator:
-    Vietnamese/English NLP -> Chinese Queries -> Multi-stage Douyin Search -> Re-ranking.
+    End-to-end Smart Douyin Search Coordinator:
+    Vietnamese/English/Chinese NLP -> Chinese Queries -> Multi-stage Douyin Search -> Deduplication -> Re-ranking.
     """
 
     @classmethod
@@ -87,14 +87,21 @@ class SmartSearchService:
                         "url": r.url,
                         "author": r.author,
                         "title": r.title,
-                        "description": r.description,
-                        "hashtags": r.hashtags,
-                        "cover_url": r.cover_url,
+                        "description": r.title or "",
+                        "hashtags": [],
+                        "cover_url": r.thumbnail or "",
+                        "thumbnail": r.thumbnail or "",
                         "publish_time": r.publish_time,
-                        "like_count": r.like_count,
-                        "comment_count": r.comment_count,
-                        "share_count": r.share_count,
-                        "search_query": q
+                        "duration": r.duration or 30,
+                        "like_count": r.likes,
+                        "likes": r.likes,
+                        "comment_count": r.comments,
+                        "comments": r.comments,
+                        "share_count": r.shares,
+                        "shares": r.shares,
+                        "search_query": q,
+                        "query": q,
+                        "video_no_watermark_url": r.video_no_watermark_url
                     })
                 if len(raw_candidates) >= target_results * 2:
                     break
@@ -122,7 +129,7 @@ class SmartSearchService:
                 continue
 
             # Filter min likes if requested
-            if min_likes > 0 and cand.get("like_count", 0) < min_likes:
+            if min_likes > 0 and cand.get("likes", 0) < min_likes:
                 continue
 
             # Calculate Criteria Scores (0.0 to 1.0)
@@ -137,11 +144,11 @@ class SmartSearchService:
             # Semantic relevance
             score_semantic = 0.95 if search_q in full_text else 0.85
 
-            # Visual relevance heuristic (high for portrait/vlog/selfie keywords)
-            score_visual = 0.90 if any(v in full_text for v in ["自拍", "日常", "穿搭", "变装", "氛围感"]) else 0.80
+            # Visual relevance heuristic
+            score_visual = 0.90 if any(v in full_text for v in ["自拍", "日常", "穿搭", "变装", "氛围感", "写真"]) else 0.80
 
             # Scene score
-            score_scene = 0.90 if any(s in full_text for s in ["卧室", "室内", "房间", "厨房"]) else 0.75
+            score_scene = 0.90 if any(s in full_text for s in ["卧室", "室内", "房间", "厨房", "海边", "雪山"]) else 0.75
 
             # Query quality score from generator
             query_quality_pct = kw_scores_map.get(search_q, 80) / 100.0
@@ -158,11 +165,12 @@ class SmartSearchService:
             )
 
             cand["final_score"] = round(final_composite_score, 4)
-            cand["score_pct"] = int(round(final_composite_score * 100))
+            cand["score"] = int(round(final_composite_score * 100))
+            cand["score_pct"] = cand["score"]
             cand["match_tier"] = (
-                "Very High Match" if cand["score_pct"] >= 90 else (
-                    "High Match" if cand["score_pct"] >= 80 else (
-                        "Good Match" if cand["score_pct"] >= 70 else "Possible Match"
+                "Very High Match" if cand["score"] >= 90 else (
+                    "High Match" if cand["score"] >= 80 else (
+                        "Good Match" if cand["score"] >= 70 else "Possible Match"
                     )
                 )
             )
@@ -196,17 +204,42 @@ class SmartSearchService:
                     title=item.get("title"),
                     description=item.get("description"),
                     hashtags=json.dumps(item.get("hashtags", []), ensure_ascii=False),
-                    cover_url=item.get("cover_url"),
+                    cover_url=item.get("thumbnail") or item.get("cover_url"),
                     publish_time=item.get("publish_time"),
-                    like_count=item.get("like_count", 0),
-                    comment_count=item.get("comment_count", 0),
-                    share_count=item.get("share_count", 0),
-                    search_query=item.get("search_query"),
+                    like_count=item.get("likes", 0),
+                    comment_count=item.get("comments", 0),
+                    share_count=item.get("shares", 0),
+                    search_query=item.get("query"),
                     relevance_score=item.get("final_score", 0.9),
                     final_score=item.get("final_score", 0.9)
                 )
                 db.add(sr)
             db.commit()
+
+        # Standardized output matching Phase 4 specification
+        standardized_results = []
+        for idx, item in enumerate(final_list):
+            standardized_results.append({
+                "rank": idx + 1,
+                "video_id": item.get("remote_video_id"),
+                "title": item.get("title"),
+                "url": item.get("url"),
+                "thumbnail": item.get("thumbnail") or item.get("cover_url"),
+                "author": item.get("author"),
+                "likes": item.get("likes", 0),
+                "comments": item.get("comments", 0),
+                "shares": item.get("shares", 0),
+                "duration": item.get("duration", 30),
+                "publish_time": item.get("publish_time", ""),
+                "query": item.get("query", ""),
+                "score": item.get("score", 85),
+                "match_tier": item.get("match_tier", "High Match"),
+                "cover_url": item.get("thumbnail") or item.get("cover_url"),
+                "like_count": item.get("likes", 0),
+                "comment_count": item.get("comments", 0),
+                "share_count": item.get("shares", 0),
+                "search_query": item.get("query", "")
+            })
 
         return {
             "job_id": job_id,
@@ -216,21 +249,6 @@ class SmartSearchService:
             "translated_keywords": primary_kws + clothing_kws + action_kws,
             "queries": active_queries,
             "preview": preview_data,
-            "results_count": len(final_list),
-            "results": [
-                {
-                    "rank": idx + 1,
-                    "score": item["score_pct"],
-                    "match_tier": item["match_tier"],
-                    "video_id": item.get("remote_video_id"),
-                    "title": item.get("title"),
-                    "url": item.get("url"),
-                    "author": item.get("author"),
-                    "cover_url": item.get("cover_url"),
-                    "like_count": item.get("like_count", 0),
-                    "comment_count": item.get("comment_count", 0),
-                    "share_count": item.get("share_count", 0),
-                    "search_query": item.get("search_query")
-                } for idx, item in enumerate(final_list)
-            ]
+            "results_count": len(standardized_results),
+            "results": standardized_results
         }

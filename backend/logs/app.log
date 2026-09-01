@@ -107,3 +107,126 @@
 2026-09-01 19:40:31,665 [INFO] PipelineJobRunner: Pipeline completed successfully for video test_vid_001. Found 10 results.
 2026-09-01 19:40:34,625 [INFO] httpx: HTTP Request: POST http://testserver/api/v1/search/smart "HTTP/1.1 200 OK"
 2026-09-01 19:40:34,627 [INFO] httpx: HTTP Request: POST http://testserver/api/v1/query/translate "HTTP/1.1 200 OK"
+2026-09-01 19:44:01,405 [INFO] httpx: HTTP Request: POST http://testserver/api/v1/search/keyword "HTTP/1.1 200 OK"
+2026-09-01 19:44:02,974 [INFO] PipelineJobRunner: Starting pipeline for video b192432b-1988-4170-b522-6fc7ae90c01f (job fe2023dd-8f2a-41da-ba31-31f29a627687)
+2026-09-01 19:44:21,111 [ERROR] PipelineJobRunner: Pipeline failed for video b192432b-1988-4170-b522-6fc7ae90c01f: 'StandardizedVideoResult' object has no attribute 'description'
+Traceback (most recent call last):
+  File "C:\\Users\\Administrator\\\.gemini\\antigravity\\scratch\\Tool-douyin\backend\app\worker\job_runner.py", line 147, in run_full_pipeline
+    candidates = await WaterfallSearchStrategy.execute_search(
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\\Users\\Administrator\\\.gemini\\antigravity\\scratch\\Tool-douyin\backend\app\douyin\search_strategy.py", line 60, in execute_search
+    cand_dicts = [
+                 ^
+  File "C:\\Users\\Administrator\\\.gemini\\antigravity\\scratch\\Tool-douyin\backend\app\douyin\search_strategy.py", line 67, in <listcomp>
+    "description": c.description,
+                   ^^^^^^^^^^^^^
+  File "C:\Users\Administrator\AppData\Local\Programs\Python\Python311\Lib\site-packages\pydantic\main.py", line 1042, in __getattr__
+    raise AttributeError(f'{type(self).__name__!r} object has no attribute {item!r}')
+AttributeError: 'StandardizedVideoResult' object has no attribute 'description'
+2026-09-01 19:44:21,116 [INFO] httpx: HTTP Request: POST http://testserver/api/v1/search/url "HTTP/1.1 200 OK"
+2026-09-01 19:44:22,461 [INFO] PipelineJobRunner: Starting pipeline for video f2cb9960-5052-446e-a30e-af3df4cb30c5 (job 3b7a6702-165b-477f-ba9d-a39a374c0519)
+2026-09-01 19:44:35,335 [ERROR] PipelineJobRunner: Pipeline failed for video f2cb9960-5052-446e-a30e-af3df4cb30c5: 'StandardizedVideoResult' object has no attribute 'description'
+Traceback (most recent call last):
+  File "C:\\Users\\Administrator\\\.gemini\\antigravity\\scratch\\Tool-douyin\backend\app\worker\job_runner.py", line 147, in run_full_pipeline
+    candidates = await WaterfallSearchStrategy.execute_search(
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\\Users\\Administrator\\\.gemini\\antigravity\\scratch\\Tool-douyin\backend\app\douyin\search_strategy.py", line 60, in execute_search
+    cand_dicts = [
+                 ^
+  File "C:\\Users\\Administrator\\\.gemini\\antigravity\\scratch\\Tool-douyin\backend\app\douyin\search_strategy.py", line 67, in <listcomp>
+    "description": c.description,
+                   ^^^^^^^^^^^^^
+  File "C:\Users\Administrator\AppData\Local\Programs\Python\Python311\Lib\site-packages\pydantic\main.py", line 1042, in __getattr__
+    raise AttributeError(f'{type(self).__name__!r} object has no attribute {item!r}')
+AttributeError: 'StandardizedVideoResult' object has no attribute 'description'
+2026-09-01 19:44:35,339 [INFO] httpx: HTTP Request: POST http://testserver/api/v1/analyze/url "HTTP/1.1 200 OK"
+2026-09-01 19:44:35,345 [INFO] PipelineJobRunner: Starting pipeline for video e3ba0afa-138f-4c15-9eda-3d014bb3dba3 (job 743bd0f1-6cff-4a2c-9306-8646e8efd091)
+2026-09-01 19:44:52,240 [ERROR] PipelineJobRunner: Pipeline failed for video e3ba0afa-138f-4c15-9eda-3d014bb3dba3: 'StandardizedVideoResult' object has no attribute 'description'
+Traceback (most recent call last):
+  File "C:\\Users\\Administrator\\\.gemini\\antigravity\\scratch\\Tool-douyin\backend\app\worker\job_runner.py", line 147, in run_full_pipeline
+    candidates = await WaterfallSearchStrategy.execute_search(
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\\Users\\Administrator\\\.gemini\\antigravity\\scratch\\Tool-douyin\backend\app\douyin\search_strategy.py", line 60, in execute_search
+    cand_dicts = [
+                 ^
+  File "C:\\Users\\Administrator\\\.gemini\\antigravity\\scratch\\Tool-douyin\backend\app\douyin\search_strategy.py", line 67, in <listcomp>
+    "description": c.description,
+                   ^^^^^^^^^^^^^
+  File "C:\Users\Administrator\AppData\Local\Programs\Python\Python311\Lib\site-packages\pydantic\main.py", line 1042, in __getattr__
+    raise AttributeError(f'{type(self).__name__!r} object has no attribute {item!r}')
+AttributeError: 'StandardizedVideoResult' object has no attribute 'description'
+2026-09-01 19:44:52,244 [INFO] httpx: HTTP Request: POST http://testserver/api/v1/analyze/video "HTTP/1.1 200 OK"
+2026-09-01 19:44:52,248 [INFO] httpx: HTTP Request: POST http://testserver/api/v1/history "HTTP/1.1 200 OK"
+2026-09-01 19:44:52,268 [INFO] httpx: HTTP Request: GET http://testserver/api/v1/history "HTTP/1.1 200 OK"
+2026-09-01 19:44:52,277 [INFO] httpx: HTTP Request: DELETE http://testserver/api/v1/history/hist_805a533c "HTTP/1.1 200 OK"
+2026-09-01 19:44:53,337 [INFO] PipelineJobRunner: Starting pipeline for video 4a743fc9-f8e3-4c95-84e2-67c865776070 (job 869dd334-dde0-4662-99c0-e7773f4edab5)
+2026-09-01 19:45:06,569 [ERROR] PipelineJobRunner: Pipeline failed for video 4a743fc9-f8e3-4c95-84e2-67c865776070: 'StandardizedVideoResult' object has no attribute 'description'
+Traceback (most recent call last):
+  File "C:\\Users\\Administrator\\\.gemini\\antigravity\\scratch\\Tool-douyin\backend\app\worker\job_runner.py", line 147, in run_full_pipeline
+    candidates = await WaterfallSearchStrategy.execute_search(
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\\Users\\Administrator\\\.gemini\\antigravity\\scratch\\Tool-douyin\backend\app\douyin\search_strategy.py", line 60, in execute_search
+    cand_dicts = [
+                 ^
+  File "C:\\Users\\Administrator\\\.gemini\\antigravity\\scratch\\Tool-douyin\backend\app\douyin\search_strategy.py", line 67, in <listcomp>
+    "description": c.description,
+                   ^^^^^^^^^^^^^
+  File "C:\Users\Administrator\AppData\Local\Programs\Python\Python311\Lib\site-packages\pydantic\main.py", line 1042, in __getattr__
+    raise AttributeError(f'{type(self).__name__!r} object has no attribute {item!r}')
+AttributeError: 'StandardizedVideoResult' object has no attribute 'description'
+2026-09-01 19:45:06,573 [INFO] httpx: HTTP Request: POST http://testserver/api/v1/analyze/url "HTTP/1.1 200 OK"
+2026-09-01 19:45:06,578 [INFO] httpx: HTTP Request: GET http://testserver/api/v1/jobs/869dd334-dde0-4662-99c0-e7773f4edab5 "HTTP/1.1 200 OK"
+2026-09-01 19:45:06,584 [INFO] httpx: HTTP Request: GET http://testserver/api/v1/search/869dd334-dde0-4662-99c0-e7773f4edab5/results?page=1&page_size=10 "HTTP/1.1 200 OK"
+2026-09-01 19:45:06,587 [INFO] httpx: HTTP Request: POST http://testserver/api/v1/query/translate "HTTP/1.1 200 OK"
+2026-09-01 19:45:06,589 [INFO] httpx: HTTP Request: POST http://testserver/api/v1/query/generate "HTTP/1.1 200 OK"
+2026-09-01 19:45:15,819 [INFO] httpx: HTTP Request: POST http://testserver/api/v1/search "HTTP/1.1 200 OK"
+2026-09-01 19:45:22,157 [INFO] httpx: HTTP Request: POST http://testserver/api/v1/search "HTTP/1.1 200 OK"
+2026-09-01 19:45:22,160 [INFO] httpx: HTTP Request: GET http://testserver/api/v1/settings "HTTP/1.1 200 OK"
+2026-09-01 19:45:22,163 [INFO] httpx: HTTP Request: PUT http://testserver/api/v1/settings "HTTP/1.1 200 OK"
+2026-09-01 19:45:22,166 [INFO] httpx: HTTP Request: POST http://testserver/api/v1/files "HTTP/1.1 200 OK"
+2026-09-01 19:45:41,681 [INFO] PipelineJobRunner: Starting pipeline for video test_vid_001 (job test_job_001)
+2026-09-01 19:45:58,218 [ERROR] PipelineJobRunner: Pipeline failed for video test_vid_001: 'StandardizedVideoResult' object has no attribute 'description'
+Traceback (most recent call last):
+  File "C:\\Users\\Administrator\\\.gemini\\antigravity\\scratch\\Tool-douyin\backend\app\worker\job_runner.py", line 147, in run_full_pipeline
+    candidates = await WaterfallSearchStrategy.execute_search(
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\\Users\\Administrator\\\.gemini\\antigravity\\scratch\\Tool-douyin\backend\app\douyin\search_strategy.py", line 60, in execute_search
+    cand_dicts = [
+                 ^
+  File "C:\\Users\\Administrator\\\.gemini\\antigravity\\scratch\\Tool-douyin\backend\app\douyin\search_strategy.py", line 67, in <listcomp>
+    "description": c.description,
+                   ^^^^^^^^^^^^^
+  File "C:\Users\Administrator\AppData\Local\Programs\Python\Python311\Lib\site-packages\pydantic\main.py", line 1042, in __getattr__
+    raise AttributeError(f'{type(self).__name__!r} object has no attribute {item!r}')
+AttributeError: 'StandardizedVideoResult' object has no attribute 'description'
+2026-09-01 19:46:05,945 [INFO] httpx: HTTP Request: POST http://testserver/api/v1/search/smart "HTTP/1.1 200 OK"
+2026-09-01 19:46:05,947 [INFO] httpx: HTTP Request: POST http://testserver/api/v1/query/translate "HTTP/1.1 200 OK"
+2026-09-01 19:46:36,298 [INFO] httpx: HTTP Request: POST http://testserver/api/v1/search/keyword "HTTP/1.1 200 OK"
+2026-09-01 19:46:37,605 [INFO] PipelineJobRunner: Starting pipeline for video 7aef985c-a37a-4c98-9a65-7014c7efcd83 (job ee353333-2673-4d2e-9755-430f6425e0cb)
+2026-09-01 19:46:50,246 [INFO] PipelineJobRunner: Pipeline completed successfully for video 7aef985c-a37a-4c98-9a65-7014c7efcd83. Found 10 results.
+2026-09-01 19:46:50,248 [INFO] httpx: HTTP Request: POST http://testserver/api/v1/search/url "HTTP/1.1 200 OK"
+2026-09-01 19:46:51,521 [INFO] PipelineJobRunner: Starting pipeline for video 73a0676d-4a35-4784-bdb2-20c30dcba7d7 (job 288e3bd9-6ae3-422d-bd5a-2414fc99ef96)
+2026-09-01 19:47:06,279 [INFO] PipelineJobRunner: Pipeline completed successfully for video 73a0676d-4a35-4784-bdb2-20c30dcba7d7. Found 10 results.
+2026-09-01 19:47:06,281 [INFO] httpx: HTTP Request: POST http://testserver/api/v1/analyze/url "HTTP/1.1 200 OK"
+2026-09-01 19:47:06,288 [INFO] PipelineJobRunner: Starting pipeline for video 998643a2-a9c0-4562-a6c0-5a5925f1e59d (job 37d8ff24-3724-450e-b4bd-333c6870c5de)
+2026-09-01 19:47:19,015 [INFO] PipelineJobRunner: Pipeline completed successfully for video 998643a2-a9c0-4562-a6c0-5a5925f1e59d. Found 10 results.
+2026-09-01 19:47:19,017 [INFO] httpx: HTTP Request: POST http://testserver/api/v1/analyze/video "HTTP/1.1 200 OK"
+2026-09-01 19:47:19,022 [INFO] httpx: HTTP Request: POST http://testserver/api/v1/history "HTTP/1.1 200 OK"
+2026-09-01 19:47:19,042 [INFO] httpx: HTTP Request: GET http://testserver/api/v1/history "HTTP/1.1 200 OK"
+2026-09-01 19:47:19,051 [INFO] httpx: HTTP Request: DELETE http://testserver/api/v1/history/hist_bc934225 "HTTP/1.1 200 OK"
+2026-09-01 19:47:20,298 [INFO] PipelineJobRunner: Starting pipeline for video 3a745b76-c33e-468b-948b-513ea22d4f4f (job eb4d5028-cc2d-49e0-9d07-394878815d70)
+2026-09-01 19:47:33,199 [INFO] PipelineJobRunner: Pipeline completed successfully for video 3a745b76-c33e-468b-948b-513ea22d4f4f. Found 10 results.
+2026-09-01 19:47:33,201 [INFO] httpx: HTTP Request: POST http://testserver/api/v1/analyze/url "HTTP/1.1 200 OK"
+2026-09-01 19:47:33,206 [INFO] httpx: HTTP Request: GET http://testserver/api/v1/jobs/eb4d5028-cc2d-49e0-9d07-394878815d70 "HTTP/1.1 200 OK"
+2026-09-01 19:47:33,213 [INFO] httpx: HTTP Request: GET http://testserver/api/v1/search/eb4d5028-cc2d-49e0-9d07-394878815d70/results?page=1&page_size=10 "HTTP/1.1 200 OK"
+2026-09-01 19:47:33,216 [INFO] httpx: HTTP Request: POST http://testserver/api/v1/query/translate "HTTP/1.1 200 OK"
+2026-09-01 19:47:33,218 [INFO] httpx: HTTP Request: POST http://testserver/api/v1/query/generate "HTTP/1.1 200 OK"
+2026-09-01 19:47:39,683 [INFO] httpx: HTTP Request: POST http://testserver/api/v1/search "HTTP/1.1 200 OK"
+2026-09-01 19:47:46,288 [INFO] httpx: HTTP Request: POST http://testserver/api/v1/search "HTTP/1.1 200 OK"
+2026-09-01 19:47:46,292 [INFO] httpx: HTTP Request: GET http://testserver/api/v1/settings "HTTP/1.1 200 OK"
+2026-09-01 19:47:46,295 [INFO] httpx: HTTP Request: PUT http://testserver/api/v1/settings "HTTP/1.1 200 OK"
+2026-09-01 19:47:46,299 [INFO] httpx: HTTP Request: POST http://testserver/api/v1/files "HTTP/1.1 200 OK"
+2026-09-01 19:48:04,132 [INFO] PipelineJobRunner: Starting pipeline for video test_vid_001 (job test_job_001)
+2026-09-01 19:48:21,661 [INFO] PipelineJobRunner: Pipeline completed successfully for video test_vid_001. Found 10 results.
+2026-09-01 19:48:27,726 [INFO] httpx: HTTP Request: POST http://testserver/api/v1/search/smart "HTTP/1.1 200 OK"
+2026-09-01 19:48:27,728 [INFO] httpx: HTTP Request: POST http://testserver/api/v1/query/translate "HTTP/1.1 200 OK"
