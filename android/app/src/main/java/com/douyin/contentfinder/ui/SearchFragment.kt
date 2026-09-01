@@ -1,6 +1,9 @@
 package com.douyin.contentfinder.ui
 
 import android.app.Activity
+import android.content.ClipData
+import android.content.ClipboardManager
+import android.content.Context
 import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
@@ -10,51 +13,62 @@ import android.view.ViewGroup
 import android.widget.*
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.viewModels
+import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.repeatOnLifecycle
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.douyin.contentfinder.R
-import com.douyin.contentfinder.api.*
+import com.douyin.contentfinder.api.ApiService
 import com.douyin.contentfinder.data.AppDatabase
-import com.douyin.contentfinder.data.SearchHistoryEntity
+import com.douyin.contentfinder.data.repository.SearchRepository
+import com.douyin.contentfinder.ui.viewmodel.SearchUiState
+import com.douyin.contentfinder.ui.viewmodel.SearchViewModel
+import com.douyin.contentfinder.ui.viewmodel.SearchViewModelFactory
+import com.google.android.material.switchmaterial.SwitchMaterial
 import com.google.android.material.tabs.TabLayout
-import kotlinx.coroutines.Job
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
-import okhttp3.MediaType.Companion.toMediaTypeOrNull
-import okhttp3.MultipartBody
-import okhttp3.RequestBody.Companion.asRequestBody
-import okhttp3.RequestBody.Companion.toRequestBody
 import java.io.File
 import java.io.FileOutputStream
 
 class SearchFragment : Fragment() {
 
     private lateinit var tabLayout: TabLayout
+    private lateinit var layoutSmartInput: View
     private lateinit var layoutVideoInput: View
     private lateinit var layoutUrlInput: View
-    private lateinit var layoutKeywordInput: View
+
+    private lateinit var etSmartQuery: EditText
+    private lateinit var btnPreviewKeywords: Button
     private lateinit var btnPickVideo: Button
     private lateinit var tvSelectedVideoName: TextView
+    private lateinit var etVideoHint: EditText
     private lateinit var etDouyinUrl: EditText
-    private lateinit var etManualKeyword: EditText
-    private lateinit var switchDeepSearch: CompoundButton
-    private lateinit var tvSimilarityLabel: TextView
-    private lateinit var seekBarSimilarity: SeekBar
+    private lateinit var btnPasteClipboard: Button
+    private lateinit var switchDeepSearch: SwitchMaterial
     private lateinit var btnStartSearch: Button
 
+    private lateinit var cardKeywordPreview: View
+    private lateinit var tvPreviewContent: TextView
     private lateinit var cardProgress: View
     private lateinit var tvProgressStage: TextView
     private lateinit var progressBar: ProgressBar
+
+    private lateinit var layoutResultsHeader: View
     private lateinit var tvResultsHeader: TextView
+    private lateinit var tvResultsCount: TextView
     private lateinit var rvResults: RecyclerView
     private lateinit var adapter: ResultsAdapter
 
-    private var selectedVideoUri: Uri? = null
     private var selectedVideoFile: File? = null
-    private var currentTab = 0 // 0: Video, 1: URL, 2: Keyword
-    private var pollingJob: Job? = null
-    private val apiService = ApiService.create()
+    private var currentTab = 0 // 0: Smart Vietnamese, 1: Video File, 2: Douyin URL
+
+    private val viewModel: SearchViewModel by viewModels {
+        val db = AppDatabase.getInstance(requireContext())
+        val repo = SearchRepository(ApiService.create(), db.historyDao())
+        SearchViewModelFactory(repo)
+    }
 
     private val videoPickerLauncher = registerForActivityResult(
         ActivityResultContracts.StartActivityForResult()
@@ -62,7 +76,6 @@ class SearchFragment : Fragment() {
         if (result.resultCode == Activity.RESULT_OK && result.data != null) {
             val uri = result.data?.data
             if (uri != null) {
-                selectedVideoUri = uri
                 selectedVideoFile = getFileFromUri(uri)
                 tvSelectedVideoName.text = selectedVideoFile?.name ?: "Đã chọn video"
             }
@@ -79,26 +92,34 @@ class SearchFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
         initViews(view)
         setupEvents()
+        observeViewModel()
     }
 
     private fun initViews(v: View) {
         tabLayout = v.findViewById(R.id.tabLayout)
+        layoutSmartInput = v.findViewById(R.id.layoutSmartInput)
         layoutVideoInput = v.findViewById(R.id.layoutVideoInput)
         layoutUrlInput = v.findViewById(R.id.layoutUrlInput)
-        layoutKeywordInput = v.findViewById(R.id.layoutKeywordInput)
+
+        etSmartQuery = v.findViewById(R.id.etSmartQuery)
+        btnPreviewKeywords = v.findViewById(R.id.btnPreviewKeywords)
         btnPickVideo = v.findViewById(R.id.btnPickVideo)
         tvSelectedVideoName = v.findViewById(R.id.tvSelectedVideoName)
+        etVideoHint = v.findViewById(R.id.etVideoHint)
         etDouyinUrl = v.findViewById(R.id.etDouyinUrl)
-        etManualKeyword = v.findViewById(R.id.etManualKeyword)
+        btnPasteClipboard = v.findViewById(R.id.btnPasteClipboard)
         switchDeepSearch = v.findViewById(R.id.switchDeepSearch)
-        tvSimilarityLabel = v.findViewById(R.id.tvSimilarityLabel)
-        seekBarSimilarity = v.findViewById(R.id.seekBarSimilarity)
         btnStartSearch = v.findViewById(R.id.btnStartSearch)
 
+        cardKeywordPreview = v.findViewById(R.id.cardKeywordPreview)
+        tvPreviewContent = v.findViewById(R.id.tvPreviewContent)
         cardProgress = v.findViewById(R.id.cardProgress)
         tvProgressStage = v.findViewById(R.id.tvProgressStage)
         progressBar = v.findViewById(R.id.progressBar)
+
+        layoutResultsHeader = v.findViewById(R.id.layoutResultsHeader)
         tvResultsHeader = v.findViewById(R.id.tvResultsHeader)
+        tvResultsCount = v.findViewById(R.id.tvResultsCount)
         rvResults = v.findViewById(R.id.rvResults)
 
         adapter = ResultsAdapter()
@@ -110,9 +131,9 @@ class SearchFragment : Fragment() {
         tabLayout.addOnTabSelectedListener(object : TabLayout.OnTabSelectedListener {
             override fun onTabSelected(tab: TabLayout.Tab?) {
                 currentTab = tab?.position ?: 0
-                layoutVideoInput.visibility = if (currentTab == 0) View.VISIBLE else View.GONE
-                layoutUrlInput.visibility = if (currentTab == 1) View.VISIBLE else View.GONE
-                layoutKeywordInput.visibility = if (currentTab == 2) View.VISIBLE else View.GONE
+                layoutSmartInput.visibility = if (currentTab == 0) View.VISIBLE else View.GONE
+                layoutVideoInput.visibility = if (currentTab == 1) View.VISIBLE else View.GONE
+                layoutUrlInput.visibility = if (currentTab == 2) View.VISIBLE else View.GONE
             }
             override fun onTabUnselected(tab: TabLayout.Tab?) {}
             override fun onTabReselected(tab: TabLayout.Tab?) {}
@@ -126,180 +147,117 @@ class SearchFragment : Fragment() {
             videoPickerLauncher.launch(intent)
         }
 
-        seekBarSimilarity.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
-            override fun onProgressChanged(seekBar: SeekBar?, progress: Int, fromUser: Boolean) {
-                tvSimilarityLabel.text = "Độ tương đồng tối thiểu: $progress%"
+        btnPasteClipboard.setOnClickListener {
+            val clipboard = requireContext().getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
+            val clip = clipboard.primaryClip
+            if (clip != null && clip.itemCount > 0) {
+                val text = clip.getItemAt(0).text.toString().trim()
+                etDouyinUrl.setText(text)
+                Toast.makeText(requireContext(), "Đã dán link từ Clipboard!", Toast.LENGTH_SHORT).show()
+            } else {
+                Toast.makeText(requireContext(), "Clipboard trống", Toast.LENGTH_SHORT).show()
             }
-            override fun onStartTrackingTouch(seekBar: SeekBar?) {}
-            override fun onStopTrackingTouch(seekBar: SeekBar?) {}
-        })
+        }
+
+        btnPreviewKeywords.setOnClickListener {
+            viewModel.isDeepSearch = switchDeepSearch.isChecked
+            viewModel.previewKeywords(etSmartQuery.text.toString())
+        }
 
         btnStartSearch.setOnClickListener {
+            viewModel.isDeepSearch = switchDeepSearch.isChecked
             when (currentTab) {
-                0 -> startVideoUploadSearch()
-                1 -> startUrlSearch()
-                2 -> startKeywordSearch()
+                0 -> viewModel.executeSmartSearch(etSmartQuery.text.toString())
+                1 -> {
+                    val file = selectedVideoFile
+                    if (file == null) {
+                        Toast.makeText(requireContext(), "Vui lòng chọn file video .mp4", Toast.LENGTH_SHORT).show()
+                    } else {
+                        viewModel.uploadVideo(file, etVideoHint.text.toString())
+                    }
+                }
+                2 -> viewModel.searchDouyinUrl(etDouyinUrl.text.toString())
+            }
+        }
+    }
+
+    private fun observeViewModel() {
+        viewLifecycleOwner.lifecycleScope.launch {
+            viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
+                viewModel.uiState.collect { state ->
+                    when (state) {
+                        is SearchUiState.Idle -> {
+                            cardProgress.visibility = View.GONE
+                            btnStartSearch.isEnabled = true
+                            btnStartSearch.text = "🚀 [SEARCH] BẮT ĐẦU TÌM KIẾM"
+                        }
+                        is SearchUiState.Loading -> {
+                            cardProgress.visibility = View.VISIBLE
+                            tvProgressStage.text = state.message
+                            progressBar.progress = 30
+                            btnStartSearch.isEnabled = false
+                            btnStartSearch.text = "⏳ Đang xử lý..."
+                        }
+                        is SearchUiState.Polling -> {
+                            cardProgress.visibility = View.VISIBLE
+                            tvProgressStage.text = "Tiến độ: ${state.percent}% (${state.stage})"
+                            progressBar.progress = state.percent
+                            btnStartSearch.isEnabled = false
+                            btnStartSearch.text = "⏳ Đang quét Douyin..."
+                        }
+                        is SearchUiState.KeywordPreview -> {
+                            cardProgress.visibility = View.GONE
+                            btnStartSearch.isEnabled = true
+                            btnStartSearch.text = "🚀 [SEARCH] BẮT ĐẦU TÌM KIẾM"
+                            cardKeywordPreview.visibility = View.VISIBLE
+
+                            val sb = StringBuilder()
+                            val cats = state.preview.chineseKeywords
+                            cats.forEach { (k, v) ->
+                                sb.append("• ${k.uppercase()}: ${v.joinToString(", ")}\n")
+                            }
+                            sb.append("\n🔥 Top Search Queries:\n")
+                            state.preview.queryScores.take(5).forEach { q ->
+                                sb.append("  [${q.tier.uppercase()} - ${q.score}đ] ${q.query}\n")
+                            }
+                            tvPreviewContent.text = sb.toString().trim()
+                        }
+                        is SearchUiState.Success -> {
+                            cardProgress.visibility = View.GONE
+                            btnStartSearch.isEnabled = true
+                            btnStartSearch.text = "🚀 [SEARCH] BẮT ĐẦU TÌM KIẾM"
+                            layoutResultsHeader.visibility = View.VISIBLE
+                            tvResultsCount.text = "(${state.totalCount} video)"
+                            adapter.setResults(state.results)
+                        }
+                        is SearchUiState.Error -> {
+                            cardProgress.visibility = View.GONE
+                            btnStartSearch.isEnabled = true
+                            btnStartSearch.text = "🚀 [SEARCH] BẮT ĐẦU TÌM KIẾM"
+                            Toast.makeText(requireContext(), state.message, Toast.LENGTH_LONG).show()
+                        }
+                    }
+                }
             }
         }
     }
 
     fun setSharedUrl(url: String) {
-        tabLayout.getTabAt(1)?.select()
+        tabLayout.getTabAt(2)?.select()
         etDouyinUrl.setText(url)
-        startUrlSearch()
+        viewModel.searchDouyinUrl(url)
     }
 
-    private fun startVideoUploadSearch() {
-        val file = selectedVideoFile ?: run {
-            Toast.makeText(requireContext(), "Vui lòng chọn video trước", Toast.LENGTH_SHORT).show()
-            return
-        }
-        showProgress("Đang tải video lên server...", 10)
-
-        lifecycleScope.launch {
-            try {
-                val reqFile = file.asRequestBody("video/*".toMediaTypeOrNull())
-                val body = MultipartBody.Part.createFormData("file", file.name, reqFile)
-                val hint = "".toRequestBody("text/plain".toMediaTypeOrNull())
-                val isDeep = switchDeepSearch.isChecked.toString().toRequestBody("text/plain".toMediaTypeOrNull())
-
-                val resp = apiService.uploadVideo(body, hint, isDeep)
-                if (resp.isSuccessful && resp.body() != null) {
-                    val jobId = resp.body()!!.jobId
-                    saveHistory(jobId, file.name, "video")
-                    startPolling(jobId)
-                } else {
-                    hideProgress()
-                    Toast.makeText(requireContext(), "Lỗi tải video", Toast.LENGTH_SHORT).show()
-                }
-            } catch (e: Exception) {
-                hideProgress()
-                Toast.makeText(requireContext(), "Lỗi kết nối: ${e.message}", Toast.LENGTH_SHORT).show()
-            }
-        }
+    fun setSharedQuery(query: String) {
+        tabLayout.getTabAt(0)?.select()
+        etSmartQuery.setText(query)
+        viewModel.executeSmartSearch(query)
     }
 
-    private fun startUrlSearch() {
-        val url = etDouyinUrl.text.toString().trim()
-        if (url.isEmpty()) {
-            Toast.makeText(requireContext(), "Vui lòng dán link Douyin", Toast.LENGTH_SHORT).show()
-            return
-        }
-        showProgress("Đang phân tích link Douyin...", 15)
-
-        lifecycleScope.launch {
-            try {
-                val req = UrlSearchRequest(url = url, deepSearch = switchDeepSearch.isChecked)
-                val resp = apiService.searchByUrl(req)
-                if (resp.isSuccessful && resp.body() != null) {
-                    val jobId = resp.body()!!.jobId
-                    saveHistory(jobId, resp.body()!!.title ?: url, "url")
-                    startPolling(jobId)
-                } else {
-                    hideProgress()
-                    Toast.makeText(requireContext(), "Không thể phân tích URL này", Toast.LENGTH_SHORT).show()
-                }
-            } catch (e: Exception) {
-                hideProgress()
-                Toast.makeText(requireContext(), "Lỗi kết nối: ${e.message}", Toast.LENGTH_SHORT).show()
-            }
-        }
-    }
-
-    private fun startKeywordSearch() {
-        val kw = etManualKeyword.text.toString().trim()
-        if (kw.isEmpty()) {
-            Toast.makeText(requireContext(), "Vui lòng nhập từ khóa tiếng Trung", Toast.LENGTH_SHORT).show()
-            return
-        }
-        showProgress("Đang quét Douyin theo từ khóa '$kw'...", 50)
-
-        lifecycleScope.launch {
-            try {
-                val req = KeywordSearchRequest(keyword = kw, deepSearch = switchDeepSearch.isChecked, limit = 30)
-                val resp = apiService.searchByKeyword(req)
-                hideProgress()
-                if (resp.isSuccessful && resp.body() != null) {
-                    val items = resp.body()!!.results
-                    adapter.setResults(items)
-                    tvResultsHeader.visibility = View.VISIBLE
-                    saveHistory(resp.body()!!.jobId, kw, "keyword")
-                } else {
-                    Toast.makeText(requireContext(), "Không tìm thấy kết quả", Toast.LENGTH_SHORT).show()
-                }
-            } catch (e: Exception) {
-                hideProgress()
-                Toast.makeText(requireContext(), "Lỗi: ${e.message}", Toast.LENGTH_SHORT).show()
-            }
-        }
-    }
-
-    private fun startPolling(jobId: String) {
-        pollingJob?.cancel()
-        pollingJob = lifecycleScope.launch {
-            while (true) {
-                delay(1500)
-                try {
-                    val resp = apiService.getJobStatus(jobId)
-                    if (resp.isSuccessful && resp.body() != null) {
-                        val job = resp.body()!!
-                        showProgress(job.stage, job.progressPercent)
-
-                        if (job.status == "completed") {
-                            fetchResults(jobId)
-                            break
-                        } else if (job.status == "failed") {
-                            hideProgress()
-                            Toast.makeText(requireContext(), "Thất bại: ${job.errorMessage}", Toast.LENGTH_LONG).show()
-                            break
-                        }
-                    }
-                } catch (e: Exception) {
-                    // Retry on network glitch
-                }
-            }
-        }
-    }
-
-    private fun fetchResults(jobId: String) {
-        lifecycleScope.launch {
-            try {
-                val minScore = seekBarSimilarity.progress.toFloat()
-                val resp = apiService.getJobResults(jobId, page = 1, pageSize = 30, minScore = minScore)
-                hideProgress()
-                if (resp.isSuccessful && resp.body() != null) {
-                    val list = resp.body()!!.results
-                    adapter.setResults(list)
-                    tvResultsHeader.visibility = View.VISIBLE
-                }
-            } catch (e: Exception) {
-                hideProgress()
-            }
-        }
-    }
-
-    private fun showProgress(stage: String, percent: Int) {
-        cardProgress.visibility = View.VISIBLE
-        tvProgressStage.text = stage
-        progressBar.progress = percent
-    }
-
-    private fun hideProgress() {
-        cardProgress.visibility = View.GONE
-    }
-
-    private fun saveHistory(id: String, title: String, type: String) {
-        lifecycleScope.launch {
-            try {
-                val db = AppDatabase.getInstance(requireContext())
-                db.historyDao().insert(SearchHistoryEntity(id = id, title = title, inputType = type, resultCount = 0))
-            } catch (e: Exception) {}
-        }
-    }
 
     private fun getFileFromUri(uri: Uri): File {
         val inputStream = requireContext().contentResolver.openInputStream(uri)
-        val file = File(requireContext().cacheDir, "temp_upload_${System.currentTimeMillis()}.mp4")
+        val file = File(requireContext().cacheDir, "temp_video_${System.currentTimeMillis()}.mp4")
         val outputStream = FileOutputStream(file)
         inputStream?.copyTo(outputStream)
         inputStream?.close()

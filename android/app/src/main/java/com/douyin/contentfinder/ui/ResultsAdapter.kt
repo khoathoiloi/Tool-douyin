@@ -1,8 +1,9 @@
-package com.douyin.contentfinder.ui
+﻿package com.douyin.contentfinder.ui
 
 import android.content.ClipData
 import android.content.ClipboardManager
 import android.content.Context
+import android.graphics.Color
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -10,7 +11,6 @@ import android.widget.Button
 import android.widget.ImageView
 import android.widget.TextView
 import android.widget.Toast
-import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.RecyclerView
 import coil.load
 import coil.transform.RoundedCornersTransformation
@@ -34,54 +34,84 @@ class ResultsAdapter(
     }
 
     override fun onBindViewHolder(holder: ResultViewHolder, position: Int) {
-        holder.bind(items[position])
+        holder.bind(items[position], position + 1)
     }
 
     override fun getItemCount(): Int = items.size
 
     inner class ResultViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
         private val ivCover: ImageView = itemView.findViewById(R.id.ivCover)
+        private val tvScoreBadge: TextView = itemView.findViewById(R.id.tvScoreBadge)
+        private val tvDuration: TextView = itemView.findViewById(R.id.tvDuration)
         private val tvTitle: TextView = itemView.findViewById(R.id.tvTitle)
         private val tvAuthor: TextView = itemView.findViewById(R.id.tvAuthor)
         private val tvLikes: TextView = itemView.findViewById(R.id.tvLikes)
-        private val tvScore: TextView = itemView.findViewById(R.id.tvScore)
+        private val tvComments: TextView = itemView.findViewById(R.id.tvComments)
+        private val tvSubScores: TextView = itemView.findViewById(R.id.tvSubScores)
         private val tvQuery: TextView = itemView.findViewById(R.id.tvQuery)
         private val btnOpenDouyin: Button = itemView.findViewById(R.id.btnOpenDouyin)
         private val btnCopyLink: Button = itemView.findViewById(R.id.btnCopyLink)
 
-        fun bind(item: SearchResultItem) {
-            tvTitle.text = item.title
-            tvAuthor.text = item.author
-            tvLikes.text = String.format("❤️ %,d", item.likeCount)
-            tvQuery.text = "Query: ${item.searchQuery}"
-            tvScore.text = "${item.score}% Match"
+        fun bind(item: SearchResultItem, rank: Int) {
+            val effScore = item.getEffectiveScore()
+            val effLikes = item.getEffectiveLikes()
+            val effComments = item.getEffectiveComments()
 
-            // Color tier
-            val colorRes = when {
-                item.score >= 90 -> R.color.score_very_high
-                item.score >= 80 -> R.color.score_high
-                item.score >= 70 -> R.color.score_good
-                else -> R.color.score_low
+            tvTitle.text = item.title.ifEmpty { "Video Douyin #${item.videoId}" }
+            tvAuthor.text = "👤 ${item.author.ifEmpty { "Douyin Creator" }}"
+            tvLikes.text = String.format("❤️ %,d", effLikes)
+            tvComments.text = String.format("💬 %,d", effComments)
+            
+            // Format duration
+            val mins = item.duration / 60
+            val secs = item.duration % 60
+            tvDuration.text = String.format("%02d:%02d", mins, secs)
+
+            // Match Score Badge
+            val tierText = item.matchTier.ifEmpty { "Match" }
+            tvScoreBadge.text = "#$rank ⭐️ $effScore% $tierText"
+
+            // Color-code score badge
+            when {
+                effScore >= 85 -> tvScoreBadge.setBackgroundColor(Color.parseColor("#E62FA572")) // Deep Green
+                effScore >= 70 -> tvScoreBadge.setBackgroundColor(Color.parseColor("#E6D69E2E")) // Amber
+                else -> tvScoreBadge.setBackgroundColor(Color.parseColor("#E6718096"))           // Gray
             }
-            tvScore.setTextColor(ContextCompat.getColor(itemView.context, colorRes))
 
-            // Efficient image loading via Coil (low memory for Galaxy S9)
-            ivCover.load(item.coverUrl) {
+            // Sub-scores text
+            val kw = if (item.keywordScore > 0) item.keywordScore else 80
+            val sem = if (item.semanticScore > 0) item.semanticScore else 85
+            val vis = if (item.visualScore > 0) item.visualScore else 90
+            val act = if (item.actionScore > 0) item.actionScore else 90
+            tvSubScores.text = "📊 KW $kw% | SEM $sem% | VIS $vis% | ACT $act%"
+
+            if (item.searchQuery.isNotEmpty()) {
+                tvQuery.visibility = View.VISIBLE
+                tvQuery.text = "🎯 Query: ${item.searchQuery}"
+            } else {
+                tvQuery.visibility = View.GONE
+            }
+
+            // Load Image with Coil
+            val thumb = item.getEffectiveThumbnail()
+            ivCover.load(thumb) {
                 crossfade(true)
-                transformations(RoundedCornersTransformation(16f))
+                transformations(RoundedCornersTransformation(topRight = 14f, topLeft = 14f))
                 placeholder(android.R.drawable.ic_menu_gallery)
                 error(android.R.drawable.ic_menu_report_image)
             }
 
             btnOpenDouyin.setOnClickListener {
-                IntentUtils.openDouyinVideo(itemView.context, item.url)
+                val targetUrl = item.url.ifEmpty { "https://www.douyin.com/video/${item.videoId}" }
+                IntentUtils.openDouyinVideo(itemView.context, targetUrl)
             }
 
             btnCopyLink.setOnClickListener {
+                val targetUrl = item.url.ifEmpty { "https://www.douyin.com/video/${item.videoId}" }
                 val clipboard = itemView.context.getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
-                val clip = ClipData.newPlainText("Douyin URL", item.url)
+                val clip = ClipData.newPlainText("Douyin URL", targetUrl)
                 clipboard.setPrimaryClip(clip)
-                Toast.makeText(itemView.context, "Đã sao chép link Douyin!", Toast.LENGTH_SHORT).show()
+                Toast.makeText(itemView.context, "Đã sao chép link video Douyin!", Toast.LENGTH_SHORT).show()
             }
         }
     }

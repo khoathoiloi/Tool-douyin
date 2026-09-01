@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
@@ -13,11 +13,12 @@
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="CÀI ĐẶT ỨNG DỤNG"
+            android:text="⚙️ CÀI ĐẶT HỆ THỐNG & KẾT NỐI"
             android:textColor="@color/accent"
             android:textSize="18sp"
             android:textStyle="bold"
             android:gravity="center"
+            android:layout_marginTop="8dp"
             android:layout_marginBottom="20dp" />
 
         <TextView
@@ -25,7 +26,8 @@
             android:layout_height="wrap_content"
             android:text="Địa chỉ Máy chủ Backend (API Base URL):"
             android:textColor="@color/text_primary"
-            android:textSize="14sp" />
+            android:textSize="14sp"
+            android:textStyle="bold" />
 
         <EditText
             android:id="@+id/etBaseUrl"
@@ -38,31 +40,50 @@
             android:layout_marginTop="8dp"
             android:textSize="14sp" />
 
+        <!-- Health Check Status -->
+        <TextView
+            android:id="@+id/tvHealthStatus"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:text="Trạng thái Backend: Chưa kiểm tra"
+            android:textColor="@color/text_secondary"
+            android:textSize="13sp" />
+
+        <Button
+            android:id="@+id/btnTestConnection"
+            style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+            android:layout_width="match_parent"
+            android:layout_height="46dp"
+            android:text="⚡ Kiểm Tra Kết Nối Backend"
+            android:textColor="@color/text_primary"
+            android:layout_marginTop="8dp" />
+
         <Button
             android:id="@+id/btnSaveSettings"
             android:layout_width="match_parent"
             android:layout_height="50dp"
-            android:text="LƯU CÀI ĐẶT"
+            android:text="💾 LƯU CẤU HÌNH APK"
+            android:textStyle="bold"
             android:backgroundTint="@color/primary"
             android:layout_marginTop="16dp" />
 
         <Button
             android:id="@+id/btnClearCache"
-            style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+            style="@style/Widget.MaterialComponents.Button.TextButton"
             android:layout_width="match_parent"
-            android:layout_height="50dp"
-            android:text="Dọn dẹp bộ nhớ đệm Cache"
-            android:textColor="@color/text_primary"
+            android:layout_height="46dp"
+            android:text="🧹 Dọn dẹp bộ nhớ đệm video cache"
+            android:textColor="#E53E3E"
             android:layout_marginTop="12dp" />
 
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Thiết bị mục tiêu: Samsung Galaxy S9 (Android 8.0 - 10.0)
-Phiên bản APK: 1.0.0 Release"
+            android:text="📱 Thiết bị tối ưu: Samsung Galaxy S9 (Android 8.0 - 10.0)&#10;🔒 Client mỏng: Toàn bộ AI, Ranking &amp; Secret chỉ lưu tại Backend&#10;Phiên bản APK: 1.0.0 Release"
             android:textColor="@color/text_secondary"
             android:textSize="12sp"
             android:gravity="center"
-            android:layout_marginTop="30dp" />
+            android:layout_marginTop="36dp" />
     </LinearLayout>
 </ScrollView>

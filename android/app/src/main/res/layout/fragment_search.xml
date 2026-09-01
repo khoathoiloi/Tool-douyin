@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <androidx.coordinatorlayout.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
@@ -13,81 +13,131 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical"
-            android:padding="16dp">
+            android:padding="14dp">
 
+            <!-- App Title Banner -->
             <TextView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="DOUYIN VIDEO SEARCH"
+                android:text="DOUYIN SMART FINDER"
                 android:textColor="@color/accent"
                 android:textSize="20sp"
                 android:textStyle="bold"
                 android:gravity="center"
-                android:layout_marginBottom="16dp" />
+                android:layout_marginTop="6dp"
+                android:layout_marginBottom="12dp" />
 
-            <!-- 3 Input Tabs -->
+            <!-- 3 Search Mode Tabs -->
             <com.google.android.material.tabs.TabLayout
                 android:id="@+id/tabLayout"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
+                android:layout_height="44dp"
                 android:background="@color/card_dark"
                 app:tabTextColor="@color/text_secondary"
                 app:tabSelectedTextColor="@color/accent"
-                app:tabIndicatorColor="@color/accent">
+                app:tabIndicatorColor="@color/accent"
+                app:tabMode="fixed"
+                app:tabGravity="fill">
                 <com.google.android.material.tabs.TabItem
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="@string/tab_video" />
+                    android:text="✨ Tiếng Việt" />
                 <com.google.android.material.tabs.TabItem
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="@string/tab_url" />
+                    android:text="📹 Video" />
                 <com.google.android.material.tabs.TabItem
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="@string/tab_keyword" />
+                    android:text="🔗 Link Douyin" />
             </com.google.android.material.tabs.TabLayout>
 
-            <!-- Card Container for Inputs -->
+            <!-- Search Inputs Container -->
             <androidx.cardview.widget.CardView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="12dp"
+                android:layout_marginTop="10dp"
                 app:cardBackgroundColor="@color/card_dark"
-                app:cardCornerRadius="12dp">
+                app:cardCornerRadius="14dp"
+                app:cardElevation="2dp">
 
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:orientation="vertical"
-                    android:padding="16dp">
+                    android:padding="14dp">
 
-                    <!-- Tab 1: Video File Picker -->
+                    <!-- Mode 1: Smart Text Search -->
                     <LinearLayout
-                        android:id="@+id/layoutVideoInput"
+                        android:id="@+id/layoutSmartInput"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:orientation="vertical"
                         android:visibility="visible">
 
+                        <EditText
+                            android:id="@+id/etSmartQuery"
+                            android:layout_width="match_parent"
+                            android:layout_height="48dp"
+                            android:hint="Nhập tiếng Việt: gái xinh mặc pijama che mặt..."
+                            android:textColorHint="@color/text_secondary"
+                            android:textColor="@color/text_primary"
+                            android:background="@drawable/bg_edit_text"
+                            android:paddingHorizontal="12dp"
+                            android:textSize="14sp"
+                            android:text="gái xinh mặc pijama che mặt" />
+
+                        <Button
+                            android:id="@+id/btnPreviewKeywords"
+                            style="@style/Widget.MaterialComponents.Button.TextButton"
+                            android:layout_width="match_parent"
+                            android:layout_height="36dp"
+                            android:layout_marginTop="4dp"
+                            android:text="👁️ Xem Trước Từ Khóa Tiếng Trung"
+                            android:textColor="#38B2AC"
+                            android:textSize="12sp" />
+                    </LinearLayout>
+
+                    <!-- Mode 2: Video File Picker -->
+                    <LinearLayout
+                        android:id="@+id/layoutVideoInput"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical"
+                        android:visibility="gone">
+
                         <Button
                             android:id="@+id/btnPickVideo"
                             android:layout_width="match_parent"
-                            android:layout_height="50dp"
-                            android:text="📁 Chọn Video từ Máy"
+                            android:layout_height="48dp"
+                            android:text="📁 [UPLOAD VIDEO] Chọn File .mp4"
+                            android:textSize="13sp"
+                            android:textStyle="bold"
                             android:backgroundTint="@color/primary" />
 
                         <TextView
                             android:id="@+id/tvSelectedVideoName"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
-                            android:layout_marginTop="8dp"
-                            android:text="Chưa chọn video"
+                            android:layout_marginTop="6dp"
+                            android:text="Chưa chọn file video"
                             android:textColor="@color/text_secondary"
+                            android:textSize="12sp" />
+
+                        <EditText
+                            android:id="@+id/etVideoHint"
+                            android:layout_width="match_parent"
+                            android:layout_height="44dp"
+                            android:layout_marginTop="6dp"
+                            android:hint="Gợi ý chủ đề (tùy chọn)..."
+                            android:textColorHint="@color/text_secondary"
+                            android:textColor="@color/text_primary"
+                            android:background="@drawable/bg_edit_text"
+                            android:paddingHorizontal="12dp"
                             android:textSize="13sp" />
                     </LinearLayout>
 
-                    <!-- Tab 2: Douyin URL -->
+                    <!-- Mode 3: Douyin URL -->
                     <LinearLayout
                         android:id="@+id/layoutUrlInput"
                         android:layout_width="match_parent"
@@ -95,83 +145,101 @@
                         android:orientation="vertical"
                         android:visibility="gone">
 
-                        <EditText
-                            android:id="@+id/etDouyinUrl"
+                        <LinearLayout
                             android:layout_width="match_parent"
-                            android:layout_height="50dp"
-                            android:hint="Dán link Douyin / TikTok tại đây..."
-                            android:textColorHint="@color/text_secondary"
-                            android:textColor="@color/text_primary"
-                            android:background="@drawable/bg_edit_text"
-                            android:paddingHorizontal="12dp"
-                            android:textSize="14sp" />
+                            android:layout_height="wrap_content"
+                            android:orientation="horizontal">
+
+                            <EditText
+                                android:id="@+id/etDouyinUrl"
+                                android:layout_width="0dp"
+                                android:layout_height="48dp"
+                                android:layout_weight="1"
+                                android:hint="Dán link Douyin / TikTok..."
+                                android:textColorHint="@color/text_secondary"
+                                android:textColor="@color/text_primary"
+                                android:background="@drawable/bg_edit_text"
+                                android:paddingHorizontal="12dp"
+                                android:textSize="13sp"
+                                android:text="https://www.douyin.com/video/7268899827364121901" />
+
+                            <Button
+                                android:id="@+id/btnPasteClipboard"
+                                style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+                                android:layout_width="wrap_content"
+                                android:layout_height="48dp"
+                                android:layout_marginStart="6dp"
+                                android:text="DÁN"
+                                android:textSize="12sp"
+                                android:textColor="@color/text_primary" />
+                        </LinearLayout>
                     </LinearLayout>
 
-                    <!-- Tab 3: Manual Keyword -->
-                    <LinearLayout
-                        android:id="@+id/layoutKeywordInput"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:orientation="vertical"
-                        android:visibility="gone">
-
-                        <EditText
-                            android:id="@+id/etManualKeyword"
-                            android:layout_width="match_parent"
-                            android:layout_height="50dp"
-                            android:hint="Nhập từ khóa tiếng Trung (ví dụ: 女生变装)..."
-                            android:textColorHint="@color/text_secondary"
-                            android:textColor="@color/text_primary"
-                            android:background="@drawable/bg_edit_text"
-                            android:paddingHorizontal="12dp"
-                            android:textSize="14sp" />
-                    </LinearLayout>
-
-                    <!-- Deep Search & Similarity Slider -->
+                    <!-- Deep Search Toggle -->
                     <com.google.android.material.switchmaterial.SwitchMaterial
                         android:id="@+id/switchDeepSearch"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:layout_marginTop="16dp"
-                        android:text="@string/deep_search"
-                        android:textColor="@color/text_primary" />
-
-                    <TextView
-                        android:id="@+id/tvSimilarityLabel"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:layout_marginTop="12dp"
-                        android:text="Độ tương đồng tối thiểu: 70%"
-                        android:textColor="@color/text_secondary"
+                        android:layout_marginTop="10dp"
+                        android:text="🔥 [DEEP SEARCH] Quét sâu (30 queries)"
+                        android:textColor="@color/text_primary"
                         android:textSize="13sp" />
 
-                    <SeekBar
-                        android:id="@+id/seekBarSimilarity"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:max="100"
-                        android:progress="70"
-                        android:layout_marginTop="4dp" />
-
-                    <!-- Search Button -->
+                    <!-- Primary Action Button -->
                     <Button
                         android:id="@+id/btnStartSearch"
                         android:layout_width="match_parent"
-                        android:layout_height="54dp"
-                        android:layout_marginTop="16dp"
-                        android:text="@string/btn_search"
-                        android:textSize="15sp"
+                        android:layout_height="50dp"
+                        android:layout_marginTop="12dp"
+                        android:text="🚀 [SEARCH] BẮT ĐẦU TÌM KIẾM"
+                        android:textSize="14sp"
                         android:textStyle="bold"
                         android:backgroundTint="@color/primary" />
                 </LinearLayout>
             </androidx.cardview.widget.CardView>
 
-            <!-- Progress Card -->
+            <!-- Keyword Preview Card (Collapsible) -->
+            <androidx.cardview.widget.CardView
+                android:id="@+id/cardKeywordPreview"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="10dp"
+                android:visibility="gone"
+                app:cardBackgroundColor="#1A365D"
+                app:cardCornerRadius="12dp">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:padding="12dp">
+
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="🇨🇳 TỪ KHÓA & SEARCH QUERIES TIẾNG TRUNG:"
+                        android:textColor="#63B3ED"
+                        android:textSize="12sp"
+                        android:textStyle="bold" />
+
+                    <TextView
+                        android:id="@+id/tvPreviewContent"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="6dp"
+                        android:text="• 美女穿睡衣遮脸\n• 美女睡衣自拍\n• 高颜值女生睡衣"
+                        android:textColor="#E2E8F0"
+                        android:textSize="12sp"
+                        android:fontFamily="monospace" />
+                </LinearLayout>
+            </androidx.cardview.widget.CardView>
+
+            <!-- Progress Bar Card -->
             <androidx.cardview.widget.CardView
                 android:id="@+id/cardProgress"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="16dp"
+                android:layout_marginTop="12dp"
                 android:visibility="gone"
                 app:cardBackgroundColor="@color/card_dark"
                 app:cardCornerRadius="12dp">
@@ -180,14 +248,15 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:orientation="vertical"
-                    android:padding="16dp">
+                    android:padding="14dp">
 
                     <TextView
                         android:id="@+id/tvProgressStage"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:text="Đang phân tích video..."
+                        android:text="Đang phân tích và quét Douyin..."
                         android:textColor="@color/accent"
+                        android:textSize="13sp"
                         android:textStyle="bold" />
 
                     <ProgressBar
@@ -196,23 +265,41 @@
                         android:layout_width="match_parent"
                         android:layout_height="8dp"
                         android:layout_marginTop="8dp"
-                        android:progress="25" />
+                        android:progress="30" />
                 </LinearLayout>
             </androidx.cardview.widget.CardView>
 
-            <!-- Results List -->
-            <TextView
-                android:id="@+id/tvResultsHeader"
+            <!-- Results Section Header & Filter Button -->
+            <LinearLayout
+                android:id="@+id/layoutResultsHeader"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="20dp"
-                android:layout_marginBottom="8dp"
-                android:text="KẾT QUẢ VIDEO DOUYIN TƯƠNG ĐỒNG"
-                android:textColor="@color/accent"
-                android:textSize="14sp"
-                android:textStyle="bold"
-                android:visibility="gone" />
+                android:layout_marginTop="16dp"
+                android:layout_marginBottom="6dp"
+                android:orientation="horizontal"
+                android:gravity="center_vertical"
+                android:visibility="gone">
 
+                <TextView
+                    android:id="@+id/tvResultsHeader"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="DANH SÁCH VIDEO DOUYIN TƯƠNG ĐỒNG"
+                    android:textColor="@color/accent"
+                    android:textSize="13sp"
+                    android:textStyle="bold" />
+
+                <TextView
+                    android:id="@+id/tvResultsCount"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="(5 video)"
+                    android:textColor="@color/text_secondary"
+                    android:textSize="12sp" />
+            </LinearLayout>
+
+            <!-- Results Recycler -->
             <androidx.recyclerview.widget.RecyclerView
                 android:id="@+id/rvResults"
                 android:layout_width="match_parent"

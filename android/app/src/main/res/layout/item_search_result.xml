@@ -1,25 +1,61 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <androidx.cardview.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:layout_marginHorizontal="12dp"
-    android:layout_marginVertical="8dp"
+    android:layout_marginHorizontal="8dp"
+    android:layout_marginVertical="6dp"
     app:cardBackgroundColor="@color/card_dark"
-    app:cardCornerRadius="12dp"
-    app:cardElevation="4dp">
+    app:cardCornerRadius="14dp"
+    app:cardElevation="3dp">
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical">
 
-        <ImageView
-            android:id="@+id/ivCover"
+        <RelativeLayout
             android:layout_width="match_parent"
-            android:layout_height="200dp"
-            android:scaleType="centerCrop"
-            android:background="@color/bg_dark" />
+            android:layout_height="210dp">
+
+            <ImageView
+                android:id="@+id/ivCover"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:scaleType="centerCrop"
+                android:background="@color/bg_dark" />
+
+            <!-- Match Score Badge -->
+            <TextView
+                android:id="@+id/tvScoreBadge"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentStart="true"
+                android:layout_alignParentTop="true"
+                android:layout_margin="10dp"
+                android:background="#D92FA572"
+                android:paddingHorizontal="10dp"
+                android:paddingVertical="4dp"
+                android:text="⭐️ 89% MATCH"
+                android:textColor="#FFFFFF"
+                android:textSize="12sp"
+                android:textStyle="bold" />
+
+            <!-- Duration Badge -->
+            <TextView
+                android:id="@+id/tvDuration"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentEnd="true"
+                android:layout_alignParentBottom="true"
+                android:layout_margin="8dp"
+                android:background="#A6000000"
+                android:paddingHorizontal="6dp"
+                android:paddingVertical="2dp"
+                android:text="00:25"
+                android:textColor="#FFFFFF"
+                android:textSize="11sp" />
+        </RelativeLayout>
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -27,65 +63,75 @@
             android:orientation="vertical"
             android:padding="12dp">
 
+            <!-- Title -->
+            <TextView
+                android:id="@+id/tvTitle"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="【美女睡衣自拍】全网超火爆款视频 #美女睡衣自拍"
+                android:textColor="@color/text_primary"
+                android:textSize="15sp"
+                android:textStyle="bold"
+                android:maxLines="2"
+                android:ellipsize="end" />
+
+            <!-- Author & Stats -->
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:layout_marginTop="6dp"
                 android:orientation="horizontal"
                 android:gravity="center_vertical">
 
                 <TextView
-                    android:id="@+id/tvScore"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="94% Match"
-                    android:textStyle="bold"
-                    android:textSize="14sp"
-                    android:textColor="@color/score_very_high" />
-
-                <View
+                    android:id="@+id/tvAuthor"
                     android:layout_width="0dp"
-                    android:layout_height="1dp"
-                    android:layout_weight="1" />
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="👤 Douyin Creator"
+                    android:textColor="@color/text_secondary"
+                    android:textSize="12sp" />
 
                 <TextView
                     android:id="@+id/tvLikes"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="❤️ 125K"
-                    android:textSize="12sp"
-                    android:textColor="@color/text_secondary" />
+                    android:layout_marginStart="8dp"
+                    android:text="❤️ 69K"
+                    android:textColor="@color/text_secondary"
+                    android:textSize="12sp" />
+
+                <TextView
+                    android:id="@+id/tvComments"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="10dp"
+                    android:text="💬 2.8K"
+                    android:textColor="@color/text_secondary"
+                    android:textSize="12sp" />
             </LinearLayout>
 
+            <!-- 6 Sub-Scores Breakdown -->
             <TextView
-                android:id="@+id/tvTitle"
+                android:id="@+id/tvSubScores"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="6dp"
-                android:text="Douyin Video Title"
-                android:maxLines="2"
-                android:ellipsize="end"
-                android:textColor="@color/text_primary"
-                android:textSize="14sp"
-                android:textStyle="bold" />
+                android:text="📊 Sub-scores: KW 80% | SEM 92% | VIS 95% | ACT 95%"
+                android:textColor="#38B2AC"
+                android:textSize="11sp" />
 
-            <TextView
-                android:id="@+id/tvAuthor"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="4dp"
-                android:text="Creator"
-                android:textSize="12sp"
-                android:textColor="@color/text_secondary" />
-
+            <!-- Matched Douyin Query -->
             <TextView
                 android:id="@+id/tvQuery"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="2dp"
-                android:text="Query: 女生变装"
-                android:textSize="11sp"
-                android:textColor="@color/accent" />
+                android:text="🎯 Query: 美女穿睡衣遮脸"
+                android:textColor="@color/accent"
+                android:textSize="11sp" />
 
+            <!-- Action Buttons -->
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -95,19 +141,20 @@
                 <Button
                     android:id="@+id/btnOpenDouyin"
                     android:layout_width="0dp"
-                    android:layout_height="40dp"
+                    android:layout_height="42dp"
                     android:layout_weight="1"
-                    android:text="MỞ DOUYIN"
+                    android:text="MỞ XEM DOUYIN"
                     android:textSize="12sp"
+                    android:textStyle="bold"
                     android:backgroundTint="@color/primary" />
 
                 <Button
                     android:id="@+id/btnCopyLink"
                     style="@style/Widget.MaterialComponents.Button.OutlinedButton"
                     android:layout_width="wrap_content"
-                    android:layout_height="40dp"
+                    android:layout_height="42dp"
                     android:layout_marginStart="8dp"
-                    android:text="COPY"
+                    android:text="📋 SAO CHÉP"
                     android:textColor="@color/text_primary"
                     android:textSize="12sp" />
             </LinearLayout>

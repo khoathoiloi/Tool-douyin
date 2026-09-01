@@ -1,4 +1,4 @@
-package com.douyin.contentfinder.ui
+﻿package com.douyin.contentfinder.ui
 
 import android.content.Intent
 import android.os.Bundle
@@ -45,8 +45,19 @@ class MainActivity : AppCompatActivity() {
             val extractedUrl = IntentUtils.extractUrlFromText(sharedText)
             if (!extractedUrl.isNullOrBlank()) {
                 bottomNav.selectedItemId = R.id.nav_search
+                loadFragment(searchFragment)
                 searchFragment.setSharedUrl(extractedUrl)
             }
+        }
+    }
+
+    fun navigateToSearchWithQuery(query: String, type: String) {
+        bottomNav.selectedItemId = R.id.nav_search
+        loadFragment(searchFragment)
+        if (type == "douyin_url" || type == "url") {
+            searchFragment.setSharedUrl(query)
+        } else {
+            searchFragment.setSharedQuery(query)
         }
     }
 
