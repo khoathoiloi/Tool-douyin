@@ -191,19 +191,40 @@ class SearchFragment : Fragment() {
                             btnStartSearch.isEnabled = true
                             btnStartSearch.text = "🚀 [SEARCH] BẮT ĐẦU TÌM KIẾM"
                         }
-                        is SearchUiState.Loading -> {
+                        is SearchUiState.Uploading -> {
                             cardProgress.visibility = View.VISIBLE
-                            tvProgressStage.text = state.message
-                            progressBar.progress = 30
+                            tvProgressStage.text = "📹 [Uploading] ${state.message} (${state.percent}%)"
+                            progressBar.progress = state.percent
                             btnStartSearch.isEnabled = false
-                            btnStartSearch.text = "⏳ Đang xử lý..."
+                            btnStartSearch.text = "⏳ Đang tải lên..."
                         }
-                        is SearchUiState.Polling -> {
+                        is SearchUiState.Queued -> {
                             cardProgress.visibility = View.VISIBLE
-                            tvProgressStage.text = "Tiến độ: ${state.percent}% (${state.stage})"
+                            tvProgressStage.text = "⏳ [Queued] ${state.message}"
+                            progressBar.progress = 20
+                            btnStartSearch.isEnabled = false
+                            btnStartSearch.text = "⏳ Đang xếp hàng..."
+                        }
+                        is SearchUiState.Analyzing -> {
+                            cardProgress.visibility = View.VISIBLE
+                            tvProgressStage.text = "🧠 [Analyzing] ${state.message} (${state.percent}%)"
+                            progressBar.progress = state.percent
+                            btnStartSearch.isEnabled = false
+                            btnStartSearch.text = "⏳ AI đang phân tích..."
+                        }
+                        is SearchUiState.Searching -> {
+                            cardProgress.visibility = View.VISIBLE
+                            tvProgressStage.text = "🔍 [Searching] ${state.message} (${state.percent}%)"
                             progressBar.progress = state.percent
                             btnStartSearch.isEnabled = false
                             btnStartSearch.text = "⏳ Đang quét Douyin..."
+                        }
+                        is SearchUiState.Ranking -> {
+                            cardProgress.visibility = View.VISIBLE
+                            tvProgressStage.text = "📊 [Ranking] ${state.message} (${state.percent}%)"
+                            progressBar.progress = state.percent
+                            btnStartSearch.isEnabled = false
+                            btnStartSearch.text = "⏳ Đang xếp hạng..."
                         }
                         is SearchUiState.KeywordPreview -> {
                             cardProgress.visibility = View.GONE
@@ -222,7 +243,7 @@ class SearchFragment : Fragment() {
                             }
                             tvPreviewContent.text = sb.toString().trim()
                         }
-                        is SearchUiState.Success -> {
+                        is SearchUiState.Completed -> {
                             cardProgress.visibility = View.GONE
                             btnStartSearch.isEnabled = true
                             btnStartSearch.text = "🚀 [SEARCH] BẮT ĐẦU TÌM KIẾM"
@@ -233,9 +254,10 @@ class SearchFragment : Fragment() {
                         is SearchUiState.Error -> {
                             cardProgress.visibility = View.GONE
                             btnStartSearch.isEnabled = true
-                            btnStartSearch.text = "🚀 [SEARCH] BẮT ĐẦU TÌM KIẾM"
+                            btnStartSearch.text = if (state.canRetry && !state.jobId.isNullOrEmpty()) "🔄 THỬ LẠI JOB NÀY" else "🚀 [SEARCH] BẮT ĐẦU TÌM KIẾM"
                             Toast.makeText(requireContext(), state.message, Toast.LENGTH_LONG).show()
                         }
+
                     }
                 }
             }
