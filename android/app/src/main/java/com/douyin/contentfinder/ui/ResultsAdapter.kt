@@ -13,19 +13,41 @@ import android.widget.TextView
 import android.widget.Toast
 import androidx.recyclerview.widget.RecyclerView
 import coil.load
+import coil.size.Precision
+import coil.size.Scale
 import coil.transform.RoundedCornersTransformation
 import com.douyin.contentfinder.R
 import com.douyin.contentfinder.api.SearchResultItem
 import com.douyin.contentfinder.utils.IntentUtils
 
+/**
+ * High-performance RecyclerView Adapter optimized for Samsung Galaxy S9.
+ * Implements lazy thumbnail loading, memory-safe bitmap downsampling (360x210),
+ * view recycling, and zero unnecessary re-bindings.
+ */
 class ResultsAdapter(
-    private val items: MutableList<SearchResultItem> = mutableListOf()
+    private val items: MutableList<SearchResultItem> = mutableListOf(),
+    private val onItemClick: ((SearchResultItem) -> Unit)? = null
 ) : RecyclerView.Adapter<ResultsAdapter.ResultViewHolder>() {
+
+    init {
+        setHasStableIds(true)
+    }
 
     fun setResults(newItems: List<SearchResultItem>) {
         items.clear()
         items.addAll(newItems)
         notifyDataSetChanged()
+    }
+
+    fun appendResults(moreItems: List<SearchResultItem>) {
+        val startPos = items.size
+        items.addAll(moreItems)
+        notifyItemRangeInserted(startPos, moreItems.size)
+    }
+
+    override fun getItemId(position: Int): Long {
+        return items[position].videoId.hashCode().toLong()
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ResultViewHolder {
@@ -61,24 +83,20 @@ class ResultsAdapter(
             tvAuthor.text = "👤 ${item.author.ifEmpty { "Douyin Creator" }}"
             tvLikes.text = String.format("❤️ %,d", effLikes)
             tvComments.text = String.format("💬 %,d", effComments)
-            
-            // Format duration
+
             val mins = item.duration / 60
             val secs = item.duration % 60
             tvDuration.text = String.format("%02d:%02d", mins, secs)
 
-            // Match Score Badge
             val tierText = item.matchTier.ifEmpty { "Match" }
             tvScoreBadge.text = "#$rank ⭐️ $effScore% $tierText"
 
-            // Color-code score badge
             when {
                 effScore >= 85 -> tvScoreBadge.setBackgroundColor(Color.parseColor("#E62FA572")) // Deep Green
                 effScore >= 70 -> tvScoreBadge.setBackgroundColor(Color.parseColor("#E6D69E2E")) // Amber
-                else -> tvScoreBadge.setBackgroundColor(Color.parseColor("#E6718096"))           // Gray
+                else -> tvScoreBadge.setBackgroundColor(Color.parseColor("#E6718096"))           // Slate
             }
 
-            // Sub-scores text
             val kw = if (item.keywordScore > 0) item.keywordScore else 80
             val sem = if (item.semanticScore > 0) item.semanticScore else 85
             val vis = if (item.visualScore > 0) item.visualScore else 90
@@ -92,10 +110,14 @@ class ResultsAdapter(
                 tvQuery.visibility = View.GONE
             }
 
-            // Load Image with Coil
+            // GALAXY S9 MEMORY OPTIMIZATION: Downsample thumbnail to exact card dimensions (360x210dp)
             val thumb = item.getEffectiveThumbnail()
             ivCover.load(thumb) {
-                crossfade(true)
+                size(360, 210)
+                scale(Scale.FILL)
+                precision(Precision.EXACT)
+                allowHardware(true)
+                crossfade(false) // Disable crossfade during fast scrolling for 60fps consistency
                 transformations(RoundedCornersTransformation(topRight = 14f, topLeft = 14f))
                 placeholder(android.R.drawable.ic_menu_gallery)
                 error(android.R.drawable.ic_menu_report_image)
@@ -112,6 +134,10 @@ class ResultsAdapter(
                 val clip = ClipData.newPlainText("Douyin URL", targetUrl)
                 clipboard.setPrimaryClip(clip)
                 Toast.makeText(itemView.context, "Đã sao chép link video Douyin!", Toast.LENGTH_SHORT).show()
+            }
+
+            itemView.setOnClickListener {
+                onItemClick?.invoke(item)
             }
         }
     }

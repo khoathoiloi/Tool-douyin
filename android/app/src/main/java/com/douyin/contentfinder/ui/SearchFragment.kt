@@ -123,9 +123,31 @@ class SearchFragment : Fragment() {
         rvResults = v.findViewById(R.id.rvResults)
 
         adapter = ResultsAdapter()
-        rvResults.layoutManager = LinearLayoutManager(requireContext())
+        val layoutMgr = LinearLayoutManager(requireContext())
+        rvResults.layoutManager = layoutMgr
         rvResults.adapter = adapter
+        
+        // GALAXY S9 SCROLLING OPTIMIZATION: 60fps smoothness & view recycling
+        rvResults.setHasFixedSize(true)
+        rvResults.setItemViewCacheSize(10)
+
+        // Endless scroll listener for pagination
+        rvResults.addOnScrollListener(object : RecyclerView.OnScrollListener() {
+            override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
+                super.onScrolled(recyclerView, dx, dy)
+                if (dy > 0) {
+                    val visibleItemCount = layoutMgr.childCount
+                    val totalItemCount = layoutMgr.itemCount
+                    val firstVisibleItemPosition = layoutMgr.findFirstVisibleItemPosition()
+
+                    if ((visibleItemCount + firstVisibleItemPosition) >= totalItemCount - 2 && firstVisibleItemPosition >= 0) {
+                        viewModel.loadNextPage()
+                    }
+                }
+            }
+        })
     }
+
 
     private fun setupEvents() {
         tabLayout.addOnTabSelectedListener(object : TabLayout.OnTabSelectedListener {
