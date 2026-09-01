@@ -312,3 +312,59 @@ AttributeError: 'StandardizedVideoResult' object has no attribute 'description'
 2026-09-01 19:59:10,605 [INFO] PipelineJobRunner: Pipeline completed successfully for video test_vid_001. Found 10 results.
 2026-09-01 19:59:16,679 [INFO] httpx: HTTP Request: POST http://testserver/api/v1/search/smart "HTTP/1.1 200 OK"
 2026-09-01 19:59:16,681 [INFO] httpx: HTTP Request: POST http://testserver/api/v1/query/translate "HTTP/1.1 200 OK"
+2026-09-01 20:04:58,203 [INFO] httpx: HTTP Request: GET http://testserver/health "HTTP/1.1 404 Not Found"
+2026-09-01 20:04:58,256 [INFO] httpx: HTTP Request: GET http://testserver/api/v1/history "HTTP/1.1 200 OK"
+2026-09-01 20:04:58,259 [INFO] httpx: HTTP Request: GET http://testserver/api/v1/settings "HTTP/1.1 200 OK"
+2026-09-01 20:04:58,262 [INFO] httpx: HTTP Request: POST http://testserver/api/v1/query/translate "HTTP/1.1 200 OK"
+2026-09-01 20:05:05,739 [INFO] httpx: HTTP Request: POST http://testserver/api/v1/search "HTTP/1.1 200 OK"
+2026-09-01 20:05:19,199 [INFO] httpx: HTTP Request: GET http://testserver/health "HTTP/1.1 200 OK"
+2026-09-01 20:05:19,239 [INFO] httpx: HTTP Request: GET http://testserver/api/v1/history "HTTP/1.1 200 OK"
+2026-09-01 20:05:19,244 [INFO] httpx: HTTP Request: GET http://testserver/api/v1/settings "HTTP/1.1 200 OK"
+2026-09-01 20:05:19,249 [INFO] httpx: HTTP Request: POST http://testserver/api/v1/query/translate "HTTP/1.1 200 OK"
+2026-09-01 20:05:24,721 [INFO] httpx: HTTP Request: POST http://testserver/api/v1/search "HTTP/1.1 200 OK"
+2026-09-01 20:05:58,543 [INFO] httpx: HTTP Request: POST http://testserver/api/v1/search "HTTP/1.1 200 OK"
+2026-09-01 20:05:58,554 [INFO] PipelineJobRunner: Starting pipeline for video 4b7c4e90-0204-41e6-85af-61a6ce823e74 (job 407fe719-220d-489d-883d-7ed4ac53ba93)
+2026-09-01 20:06:10,531 [INFO] PipelineJobRunner: Pipeline completed successfully for video 4b7c4e90-0204-41e6-85af-61a6ce823e74. Found 10 results.
+2026-09-01 20:06:10,533 [INFO] httpx: HTTP Request: POST http://testserver/api/v1/analyze/video "HTTP/1.1 200 OK"
+2026-09-01 20:06:10,534 [INFO] PipelineJobRunner: Starting pipeline for video 4b7c4e90-0204-41e6-85af-61a6ce823e74 (job 407fe719-220d-489d-883d-7ed4ac53ba93)
+2026-09-01 20:06:23,980 [INFO] PipelineJobRunner: Pipeline completed successfully for video 4b7c4e90-0204-41e6-85af-61a6ce823e74. Found 10 results.
+2026-09-01 20:06:23,991 [INFO] httpx: HTTP Request: GET http://testserver/api/v1/jobs/407fe719-220d-489d-883d-7ed4ac53ba93 "HTTP/1.1 200 OK"
+2026-09-01 20:06:23,998 [INFO] httpx: HTTP Request: GET http://testserver/api/v1/search/407fe719-220d-489d-883d-7ed4ac53ba93/results?page=1&page_size=10 "HTTP/1.1 200 OK"
+2026-09-01 20:06:24,002 [INFO] httpx: HTTP Request: POST http://testserver/api/v1/analyze/url "HTTP/1.1 400 Bad Request"
+2026-09-01 20:06:24,928 [INFO] PipelineJobRunner: Starting pipeline for video 054c6fd2-4d4d-4591-8b52-a2f478e22936 (job 2f9845b2-3cb5-4005-8d00-17398cdc4190)
+2026-09-01 20:06:36,897 [INFO] PipelineJobRunner: Pipeline completed successfully for video 054c6fd2-4d4d-4591-8b52-a2f478e22936. Found 10 results.
+2026-09-01 20:06:36,899 [INFO] httpx: HTTP Request: POST http://testserver/api/v1/analyze/url "HTTP/1.1 200 OK"
+2026-09-01 20:06:42,284 [INFO] httpx: HTTP Request: POST http://testserver/api/v1/search/keyword "HTTP/1.1 200 OK"
+2026-09-01 20:06:43,525 [INFO] PipelineJobRunner: Starting pipeline for video 50a20a41-01cb-4093-90e8-d6f4727da49f (job 746360b1-f3ec-4038-a6b9-c40b766a865f)
+2026-09-01 20:06:55,464 [INFO] PipelineJobRunner: Pipeline completed successfully for video 50a20a41-01cb-4093-90e8-d6f4727da49f. Found 10 results.
+2026-09-01 20:06:55,466 [INFO] httpx: HTTP Request: POST http://testserver/api/v1/search/url "HTTP/1.1 200 OK"
+2026-09-01 20:06:57,114 [INFO] PipelineJobRunner: Starting pipeline for video 72c337da-18b2-4c55-afaa-633c851ce333 (job 4ecf3575-1461-4ebc-80be-50857e4cd25e)
+2026-09-01 20:07:07,483 [INFO] PipelineJobRunner: Pipeline completed successfully for video 72c337da-18b2-4c55-afaa-633c851ce333. Found 10 results.
+2026-09-01 20:07:07,485 [INFO] httpx: HTTP Request: POST http://testserver/api/v1/analyze/url "HTTP/1.1 200 OK"
+2026-09-01 20:07:07,491 [INFO] PipelineJobRunner: Starting pipeline for video 598e5cea-8bde-4673-98c3-7e7e134f99c1 (job e051c68c-5b01-4694-ad52-8429446f84c5)
+2026-09-01 20:07:17,754 [INFO] PipelineJobRunner: Pipeline completed successfully for video 598e5cea-8bde-4673-98c3-7e7e134f99c1. Found 10 results.
+2026-09-01 20:07:17,756 [INFO] httpx: HTTP Request: POST http://testserver/api/v1/analyze/video "HTTP/1.1 200 OK"
+2026-09-01 20:07:17,761 [INFO] httpx: HTTP Request: POST http://testserver/api/v1/history "HTTP/1.1 200 OK"
+2026-09-01 20:07:17,780 [INFO] httpx: HTTP Request: GET http://testserver/api/v1/history "HTTP/1.1 200 OK"
+2026-09-01 20:07:17,789 [INFO] httpx: HTTP Request: DELETE http://testserver/api/v1/history/hist_9568a3b8 "HTTP/1.1 200 OK"
+2026-09-01 20:07:18,802 [INFO] PipelineJobRunner: Starting pipeline for video 7739d5f4-82b9-4ac6-86fb-6376e9c85c56 (job 216f13a3-1295-474b-98c1-c6bd4eee382b)
+2026-09-01 20:07:29,728 [INFO] PipelineJobRunner: Pipeline completed successfully for video 7739d5f4-82b9-4ac6-86fb-6376e9c85c56. Found 10 results.
+2026-09-01 20:07:29,730 [INFO] httpx: HTTP Request: POST http://testserver/api/v1/analyze/url "HTTP/1.1 200 OK"
+2026-09-01 20:07:29,735 [INFO] httpx: HTTP Request: GET http://testserver/api/v1/jobs/216f13a3-1295-474b-98c1-c6bd4eee382b "HTTP/1.1 200 OK"
+2026-09-01 20:07:29,739 [INFO] httpx: HTTP Request: GET http://testserver/api/v1/search/216f13a3-1295-474b-98c1-c6bd4eee382b/results?page=1&page_size=10 "HTTP/1.1 200 OK"
+2026-09-01 20:07:29,742 [INFO] httpx: HTTP Request: POST http://testserver/api/v1/query/translate "HTTP/1.1 200 OK"
+2026-09-01 20:07:29,745 [INFO] httpx: HTTP Request: POST http://testserver/api/v1/query/generate "HTTP/1.1 200 OK"
+2026-09-01 20:07:35,944 [INFO] httpx: HTTP Request: POST http://testserver/api/v1/search "HTTP/1.1 200 OK"
+2026-09-01 20:07:42,758 [INFO] httpx: HTTP Request: POST http://testserver/api/v1/search "HTTP/1.1 200 OK"
+2026-09-01 20:07:42,760 [INFO] httpx: HTTP Request: GET http://testserver/api/v1/settings "HTTP/1.1 200 OK"
+2026-09-01 20:07:42,762 [INFO] httpx: HTTP Request: PUT http://testserver/api/v1/settings "HTTP/1.1 200 OK"
+2026-09-01 20:07:42,765 [INFO] httpx: HTTP Request: POST http://testserver/api/v1/files "HTTP/1.1 200 OK"
+2026-09-01 20:07:58,252 [INFO] PipelineJobRunner: Starting pipeline for video test_vid_001 (job test_job_001)
+2026-09-01 20:08:11,109 [INFO] PipelineJobRunner: Pipeline completed successfully for video test_vid_001. Found 10 results.
+2026-09-01 20:08:11,124 [INFO] httpx: HTTP Request: GET http://testserver/health "HTTP/1.1 200 OK"
+2026-09-01 20:08:11,142 [INFO] httpx: HTTP Request: GET http://testserver/api/v1/history "HTTP/1.1 200 OK"
+2026-09-01 20:08:11,145 [INFO] httpx: HTTP Request: GET http://testserver/api/v1/settings "HTTP/1.1 200 OK"
+2026-09-01 20:08:11,146 [INFO] httpx: HTTP Request: POST http://testserver/api/v1/query/translate "HTTP/1.1 200 OK"
+2026-09-01 20:08:16,587 [INFO] httpx: HTTP Request: POST http://testserver/api/v1/search "HTTP/1.1 200 OK"
+2026-09-01 20:08:21,884 [INFO] httpx: HTTP Request: POST http://testserver/api/v1/search/smart "HTTP/1.1 200 OK"
+2026-09-01 20:08:21,886 [INFO] httpx: HTTP Request: POST http://testserver/api/v1/query/translate "HTTP/1.1 200 OK"

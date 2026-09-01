@@ -43,9 +43,19 @@ static_dir = os.path.join(frontend_dir, "static")
 if os.path.exists(static_dir):
     app.mount("/static", StaticFiles(directory=static_dir), name="static")
 
+@app.get("/health")
+@app.get("/api/v1/health")
+def health_check():
+    return {
+        "status": "healthy",
+        "service": settings.PROJECT_NAME,
+        "version": settings.VERSION
+    }
+
 @app.get("/")
 def serve_index():
     index_path = os.path.join(frontend_dir, "index.html")
     if os.path.exists(index_path):
         return FileResponse(index_path)
     return {"message": "Douyin Content Finder Backend API is running! Visit /api/docs"}
+
