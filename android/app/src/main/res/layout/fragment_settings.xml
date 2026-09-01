@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/bg_dark"
+    android:padding="16dp">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical">
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="CÀI ĐẶT ỨNG DỤNG"
+            android:textColor="@color/accent"
+            android:textSize="18sp"
+            android:textStyle="bold"
+            android:gravity="center"
+            android:layout_marginBottom="20dp" />
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Địa chỉ Máy chủ Backend (API Base URL):"
+            android:textColor="@color/text_primary"
+            android:textSize="14sp" />
+
+        <EditText
+            android:id="@+id/etBaseUrl"
+            android:layout_width="match_parent"
+            android:layout_height="50dp"
+            android:text="http://10.0.2.2:8000"
+            android:textColor="@color/text_primary"
+            android:background="@drawable/bg_edit_text"
+            android:paddingHorizontal="12dp"
+            android:layout_marginTop="8dp"
+            android:textSize="14sp" />
+
+        <Button
+            android:id="@+id/btnSaveSettings"
+            android:layout_width="match_parent"
+            android:layout_height="50dp"
+            android:text="LƯU CÀI ĐẶT"
+            android:backgroundTint="@color/primary"
+            android:layout_marginTop="16dp" />
+
+        <Button
+            android:id="@+id/btnClearCache"
+            style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+            android:layout_width="match_parent"
+            android:layout_height="50dp"
+            android:text="Dọn dẹp bộ nhớ đệm Cache"
+            android:textColor="@color/text_primary"
+            android:layout_marginTop="12dp" />
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Thiết bị mục tiêu: Samsung Galaxy S9 (Android 8.0 - 10.0)
+Phiên bản APK: 1.0.0 Release"
+            android:textColor="@color/text_secondary"
+            android:textSize="12sp"
+            android:gravity="center"
+            android:layout_marginTop="30dp" />
+    </LinearLayout>
+</ScrollView>

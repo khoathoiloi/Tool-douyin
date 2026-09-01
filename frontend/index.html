@@ -1,0 +1,324 @@
+﻿<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Douyin Smart Search & AI Content Finder</title>
+    <link rel="stylesheet" href="/static/css/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <div class="app-container">
+        <!-- Top Navigation -->
+        <header class="app-header">
+            <div class="header-logo">
+                <i class="fa-brands fa-tiktok logo-icon"></i>
+                <div class="logo-text">
+                    <h1>Douyin Smart Search</h1>
+                    <span class="badge-tag">Vietnamese → Chinese AI Multi-Stage Engine</span>
+                </div>
+            </div>
+            <div class="header-actions">
+                <span class="status-indicator"><i class="fa-solid fa-circle text-success"></i> Hệ Thống Đã Sẵn Sàng</span>
+                <button class="btn btn-outline" id="btnOpenHistory"><i class="fa-solid fa-clock-rotate-left"></i> Lịch Sử</button>
+                <button class="btn btn-outline" id="btnSettings"><i class="fa-solid fa-gear"></i> Cài Đặt</button>
+            </div>
+        </header>
+
+        <!-- Stepper Navigation -->
+        <div class="stepper-container">
+            <div class="step-item active" data-step="1">
+                <div class="step-circle">1</div>
+                <div class="step-label">Tìm Kiếm Thông Minh</div>
+            </div>
+            <div class="step-line"></div>
+            <div class="step-item" data-step="2">
+                <div class="step-circle">2</div>
+                <div class="step-label">Hồ Sơ Đa Tầng AI</div>
+            </div>
+            <div class="step-line"></div>
+            <div class="step-item" data-step="3">
+                <div class="step-circle">3</div>
+                <div class="step-label">Bộ Truy Vấn Phân Tầng</div>
+            </div>
+            <div class="step-line"></div>
+            <div class="step-item" data-step="4">
+                <div class="step-circle">4</div>
+                <div class="step-label">Kết Quả & Bộ Lọc</div>
+            </div>
+        </div>
+
+        <!-- MAIN SCREENS -->
+        <main class="main-content">
+            <!-- STEP 1: INPUT MODES -->
+            <section class="step-section active" id="step1Section">
+                <div class="input-mode-tabs">
+                    <button class="input-tab active" data-tab="smartSearch"><i class="fa-solid fa-wand-magic-sparkles"></i> 1. Tìm Kiếm Tiếng Việt Thông Minh</button>
+                    <button class="input-tab" data-tab="upload"><i class="fa-solid fa-cloud-arrow-up"></i> 2. Tải Lên Video File</button>
+                    <button class="input-tab" data-tab="url"><i class="fa-solid fa-link"></i> 3. Dán Link Douyin / TikTok</button>
+                </div>
+
+                <div class="upload-card">
+                    <!-- Tab 1: Smart Vietnamese -> Chinese Search -->
+                    <div class="tab-content active" id="tabSmartSearch">
+                        <div class="smart-search-box">
+                            <div class="search-title">
+                                <h3><i class="fa-solid fa-magnifying-glass text-primary"></i> Nhập Từ Khóa Bằng Tiếng Việt (Hoặc Tiếng Anh / Tiếng Trung)</h3>
+                                <p class="text-muted">AI sẽ tự động nhận diện ngôn ngữ, phân tích ý định tìm kiếm và chuyển sang từ khóa tiếng Trung chuẩn Douyin.</p>
+                            </div>
+
+                            <div class="search-input-wrapper">
+                                <div class="main-search-input-row">
+                                    <input type="text" id="smartSearchInput" class="form-control form-control-lg" placeholder="Ví dụ: gái xinh mặc pijama che mặt, cô gái nấu ăn, video mèo hài hước..." value="gái xinh mặc pijama che mặt">
+                                </div>
+
+                                <div class="search-controls-row">
+                                    <div class="control-group">
+                                        <label><i class="fa-solid fa-language"></i> Ngôn ngữ:</label>
+                                        <div class="radio-options">
+                                            <label><input type="radio" name="searchLang" value="auto" checked> Tự động</label>
+                                            <label><input type="radio" name="searchLang" value="vi"> 🇻🇳 Tiếng Việt</label>
+                                            <label><input type="radio" name="searchLang" value="zh"> 🇨🇳 Tiếng Trung</label>
+                                            <label><input type="radio" name="searchLang" value="en"> 🇬🇧 English</label>
+                                        </div>
+                                    </div>
+
+                                    <div class="control-group">
+                                        <label><i class="fa-solid fa-sliders"></i> Chế độ quét:</label>
+                                        <div class="radio-options">
+                                            <label><input type="radio" name="searchDepth" value="normal" checked> Bình thường (10–15 queries)</label>
+                                            <label><input type="radio" name="searchDepth" value="deep"> 🔥 Deep Search (20–30 queries)</label>
+                                        </div>
+                                    </div>
+
+                                    <div class="control-group">
+                                        <label><i class="fa-solid fa-gear"></i> Quy trình:</label>
+                                        <div class="radio-options">
+                                            <label><input type="radio" name="searchFlow" value="auto" checked> ⚡ Tự động tìm ngay (Auto)</label>
+                                            <label><input type="radio" name="searchFlow" value="manual"> 🛠️ Xem & Sửa Từ Khóa (Manual)</label>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="search-actions-row">
+                                    <button class="btn btn-success btn-lg" id="btnExecuteSmartSearch">
+                                        <i class="fa-solid fa-bolt"></i> TÌM KIẾM DOUYIN NGAY
+                                    </button>
+                                    <button class="btn btn-outline btn-lg" id="btnTranslatePreview">
+                                        <i class="fa-solid fa-eye"></i> Dịch & Xem Trước Từ Khóa
+                                    </button>
+                                </div>
+                            </div>
+
+                            <!-- Live Translation & Keyword Preview Panel -->
+                            <div class="translation-preview-panel" id="translationPreviewPanel" style="display: none;">
+                                <div class="preview-header">
+                                    <h4><i class="fa-solid fa-diagram-project"></i> Bản Phân Tích Ý Định & Bộ Từ Khóa Tiếng Trung Douyin</h4>
+                                    <span class="badge-tag" id="previewLangBadge">Tiếng Việt (vi)</span>
+                                </div>
+
+                                <div class="preview-body">
+                                    <div class="preview-meta-row">
+                                        <div><strong>Từ khóa gốc:</strong> <span id="previewOriginalText" class="text-highlight">-</span></div>
+                                        <div><strong>Ý định:</strong> <span id="previewIntentText" class="badge-intent">-</span></div>
+                                    </div>
+
+                                    <div class="keyword-categories-box" id="previewKeywordCategories">
+                                        <!-- Categories tags will be injected here -->
+                                    </div>
+
+                                    <div class="queries-selection-box">
+                                        <h5><i class="fa-solid fa-list-check"></i> Các Truy Vấn Tiếng Trung Sẽ Được Tìm Kiếm (Tích chọn để bật/tắt):</h5>
+                                        <div class="queries-checklist" id="queriesChecklist"></div>
+
+                                        <div class="add-custom-query-row">
+                                            <input type="text" id="txtCustomQuery" class="form-control" placeholder="Thêm từ khóa tiếng Trung tùy chỉnh...">
+                                            <button class="btn btn-outline" id="btnAddCustomQuery"><i class="fa-solid fa-plus"></i> Thêm</button>
+                                        </div>
+                                    </div>
+
+                                    <div class="preview-footer-action">
+                                        <button class="btn btn-primary btn-lg" id="btnSearchFromPreview">
+                                            <i class="fa-solid fa-magnifying-glass"></i> QUÉT DOUYIN VỚI CÁC TỪ KHÓA ĐÃ CHỌN
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Tab 2: Upload File -->
+                    <div class="tab-content" id="tabUpload" style="display: none;">
+                        <div class="dropzone" id="dropzone">
+                            <i class="fa-solid fa-file-video drop-icon"></i>
+                            <h3>Kéo thả file video vào đây hoặc chọn từ máy</h3>
+                            <p>Hỗ trợ: .mp4, .mov, .mkv, .webm, .avi (Tối đa 500MB)</p>
+                            <input type="file" id="videoFileInput" accept="video/mp4,video/quicktime,video/x-matroska,video/webm,video/x-msvideo" hidden>
+                            <button class="btn btn-primary" onclick="document.getElementById('videoFileInput').click()">
+                                <i class="fa-solid fa-folder-open"></i> Chọn Video
+                            </button>
+                        </div>
+                        <div class="upload-details" id="uploadDetails" style="display: none;">
+                            <div class="video-preview-box"><video id="videoPreview" controls></video></div>
+                            <div class="video-meta-box">
+                                <h4 id="videoFileName">video.mp4</h4>
+                                <p id="videoFileSize">0 MB</p>
+                                <div class="form-group" style="margin-top: 15px;">
+                                    <label>Ghi chú / Định hướng chủ đề (Tùy chọn):</label>
+                                    <input type="text" id="userHintInput" class="form-control" placeholder="Ví dụ: Nữ nhảy biến hình theo nhạc hot, review đồ ăn...">
+                                </div>
+                                <div class="mode-options" style="margin-top: 15px;">
+                                    <label><input type="checkbox" id="chkDeepSearchUpload"> 🔥 Bật <strong>DEEP SEARCH</strong> (Tìm sâu 30+ queries, 300+ candidates)</label>
+                                </div>
+                                <button class="btn btn-success btn-lg" id="btnStartUploadPipeline" style="margin-top: 15px; width: 100%;">
+                                    <i class="fa-solid fa-bolt"></i> Bắt Đầu Phân Tích Đa Tầng & Quét Douyin
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Tab 3: URL Input -->
+                    <div class="tab-content" id="tabUrl" style="display: none;">
+                        <div class="url-input-box">
+                            <i class="fa-solid fa-link url-icon"></i>
+                            <h3>Dán Đường Dẫn Video Douyin hoặc TikTok</h3>
+                            <p>Hỗ trợ link đầy đủ hoặc link rút gọn (douyin.com/video, v.douyin.com, vt.tiktok.com...)</p>
+                            <div class="url-bar-container">
+                                <input type="text" id="douyinUrlInput" class="form-control form-control-lg" placeholder="https://www.douyin.com/video/7268899827364121914 hoặc https://v.douyin.com/xxxx/">
+                                <button class="btn btn-primary btn-lg" id="btnAnalyzeUrl"><i class="fa-solid fa-wand-magic-sparkles"></i> Phân Tích Link</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Realtime Progress Bar -->
+                    <div class="progress-box" id="progressBox" style="display: none;">
+                        <div class="progress-header">
+                            <span id="progressStageText">Đang khởi tạo...</span>
+                            <span id="progressPercentText">0%</span>
+                        </div>
+                        <div class="progress-bar-bg">
+                            <div class="progress-bar-fill" id="progressBarFill"></div>
+                        </div>
+                        <p class="progress-sub" id="progressSubText">Hệ thống đang trích xuất khung hình và âm thanh bằng FFmpeg...</p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- STEP 2: MULTI-LAYER PROFILE -->
+            <section class="step-section" id="step2Section">
+                <div class="section-header">
+                    <h2><i class="fa-solid fa-brain"></i> Hồ Sơ Phân Tích Đa Tầng (Multi-layer Profile)</h2>
+                    <button class="btn btn-primary" onclick="app.goToStep(3)">Xem Bộ Truy Vấn <i class="fa-solid fa-arrow-right"></i></button>
+                </div>
+                <div class="profile-grid" id="profileGrid"></div>
+            </section>
+
+            <!-- STEP 3: TIERED QUERIES -->
+            <section class="step-section" id="step3Section">
+                <div class="section-header">
+                    <div>
+                        <h2><i class="fa-solid fa-tags"></i> Bộ Truy Vấn Tìm Kiếm Phân Tầng (Tiered Queries)</h2>
+                        <p class="text-muted">Chia theo: EXACT, HIGH, MEDIUM, BROAD kèm điểm chất lượng.</p>
+                    </div>
+                    <div class="header-btns">
+                        <button class="btn btn-success" id="btnExecuteSearch"><i class="fa-solid fa-magnifying-glass"></i> Quét Douyin với Bộ Truy Vấn Này</button>
+                    </div>
+                </div>
+                <div class="queries-grid" id="queriesGrid"></div>
+            </section>
+
+            <!-- STEP 4: RESULTS & ADVANCED FILTER -->
+            <section class="step-section" id="step4Section">
+                <div class="results-layout">
+                    <!-- Left: Advanced Filter Panel -->
+                    <aside class="filter-panel">
+                        <h3><i class="fa-solid fa-filter"></i> Bộ Lọc Nâng Cao</h3>
+                        
+                        <div class="filter-group">
+                            <label>Độ tương đồng tối thiểu (Score): <strong id="lblMinScore">70%</strong></label>
+                            <input type="range" id="rngMinScore" min="0" max="100" value="70" class="range-slider">
+                        </div>
+
+                        <div class="filter-group">
+                            <label>Sắp xếp theo:</label>
+                            <select id="selSortBy" class="form-control">
+                                <option value="similarity">Độ khớp tương đồng (Mặc định)</option>
+                                <option value="likes">Lượt Tim (Likes) nhiều nhất</option>
+                                <option value="comments">Lượt Bình Luận nhiều nhất</option>
+                                <option value="shares">Lượt Chia Sẻ nhiều nhất</option>
+                                <option value="newest">Mới nhất</option>
+                            </select>
+                        </div>
+
+                        <div class="filter-group">
+                            <label>Tối thiểu Lượt Thích (Likes):</label>
+                            <input type="number" id="numMinLikes" class="form-control" placeholder="Ví dụ: 50000" value="0">
+                        </div>
+
+                        <button class="btn btn-primary" id="btnApplyFilters" style="width:100%;"><i class="fa-solid fa-check"></i> Áp Dụng Bộ Lọc</button>
+                    </aside>
+
+                    <!-- Right: Results Grid -->
+                    <div class="results-content">
+                        <div class="section-header">
+                            <div>
+                                <h2 id="resultsCountText">Kết Quả Video Douyin Tương Đồng</h2>
+                                <p class="text-muted">Đã xếp hạng đa tiêu chí & lọc trùng lặp.</p>
+                            </div>
+                            <div class="header-btns">
+                                <button class="btn btn-outline" id="btnExportCSV"><i class="fa-solid fa-file-csv"></i> Xuất CSV</button>
+                                <button class="btn btn-outline" id="btnExportJSON"><i class="fa-solid fa-file-code"></i> Xuất JSON</button>
+                                <button class="btn btn-outline" id="btnCopyAll"><i class="fa-solid fa-copy"></i> Copy All Links</button>
+                            </div>
+                        </div>
+                        <div class="results-grid" id="resultsGrid"></div>
+                    </div>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <!-- History Drawer -->
+    <div class="drawer" id="historyDrawer">
+        <div class="drawer-header">
+            <h3><i class="fa-solid fa-clock-rotate-left"></i> Lịch Sử Tìm Kiếm</h3>
+            <button class="close-modal" id="btnCloseHistory">&times;</button>
+        </div>
+        <div class="drawer-body" id="historyList">
+            <p class="text-muted" style="text-align:center; padding:20px;">Đang tải lịch sử...</p>
+        </div>
+    </div>
+
+    <!-- Settings Modal -->
+    <div class="modal" id="settingsModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3><i class="fa-solid fa-sliders"></i> Cài Đặt Hệ Thống</h3>
+                <button class="close-modal" id="btnCloseModal">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="form-group" style="margin-bottom: 12px;">
+                    <label>Google Gemini API Key:</label>
+                    <input type="password" id="cfgGeminiKey" class="form-control" placeholder="Nhập API Key để kích hoạt AI Search nâng cao...">
+                </div>
+                <div class="form-group" style="margin-bottom: 12px;">
+                    <label>Douyin Cookie:</label>
+                    <input type="text" id="cfgDouyinCookie" class="form-control" placeholder="Dán cookie Douyin để quét không giới hạn...">
+                </div>
+                <div class="form-group">
+                    <label>Search Provider:</label>
+                    <select id="cfgSearchProvider" class="form-control">
+                        <option value="live">Live Douyin Search Provider</option>
+                        <option value="mock">Mock Provider (Offline Test)</option>
+                    </select>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-primary" id="btnSaveConfig">Lưu Cấu Hình</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="/static/js/app.js"></script>
+</body>
+</html>

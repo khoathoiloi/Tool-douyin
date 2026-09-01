@@ -1,0 +1,65 @@
+name: Build Android APK (Samsung Galaxy S9)
+
+on:
+  push:
+    branches: [ main ]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
+        with:
+          java-version: '17'
+          distribution: 'temurin'
+
+      - name: Setup Android SDK
+        uses: android-actions/setup-android@v3
+
+      - name: Setup Gradle
+        uses: gradle/actions/setup-gradle@v3
+        with:
+          gradle-version: "8.6"
+
+      - name: Build Debug & Release APK
+        working-directory: ./android
+        run: |
+          gradle assembleDebug assembleRelease --stacktrace
+
+      - name: Upload Debug APK Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: DouyinSearch-GalaxyS9-Debug
+          path: android/app/build/outputs/apk/debug/app-debug.apk
+
+      - name: Upload Release APK Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: DouyinSearch-GalaxyS9-Release
+          path: android/app/build/outputs/apk/release/app-release.apk
+
+      - name: Create GitHub Release with APK
+        uses: softprops/action-gh-release@v2
+        if: startsWith(github.ref, 'refs/tags/') || github.ref == 'refs/heads/main'
+        with:
+          tag_name: v1.0.0-apk
+          name: "Douyin Content Finder APK (Samsung Galaxy S9) v1.0.0"
+          body: |
+            ## 📱 Douyin Content Finder APK (Tối ưu Samsung Galaxy S9)
+            - **Phiên bản:** v1.0.0
+            - **Hỗ trợ:** Android 8.0 - 10.0+ (Samsung Galaxy S9, S10, Note 9, và mọi máy Android)
+            - **Tính năng:** Phân tích Video, Dán Link Douyin/TikTok, Nhập Keyword, Share-to-App Intent, Lọc độ tương đồng.
+          files: |
+            android/app/build/outputs/apk/release/app-release.apk
+            android/app/build/outputs/apk/debug/app-debug.apk
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

@@ -1,0 +1,12 @@
+<resources>
+    <string name="app_name">Douyin Search</string>
+    <string name="title_search">Tìm Kiếm</string>
+    <string name="title_history">Lịch Sử</string>
+    <string name="title_settings">Cài Đặt</string>
+    <string name="tab_video">Chọn Video</string>
+    <string name="tab_url">Dán Link</string>
+    <string name="tab_keyword">Keyword</string>
+    <string name="btn_search">BẮT ĐẦU TÌM KIẾM</string>
+    <string name="deep_search">🔥 Deep Search (Tìm sâu 30+ queries)</string>
+    <string name="min_similarity">Độ tương đồng tối thiểu:</string>
+</resources>
