@@ -113,34 +113,58 @@ async def api_v1_search(body: SearchRequest, db: Session = Depends(get_db)):
 # =====================================================================
 # 2. POST /api/v1/analyze/video & POST /api/v1/search/video (Video Upload Pipeline)
 # =====================================================================
-@router.post("/analyze/video", summary="Upload video file and trigger AI Multimodal analysis")
+@router.post("/analyze/video", summary="Upload video file or reference file_id to trigger AI Multimodal analysis")
 @router.post("/search/video", include_in_schema=False)
 async def api_v1_analyze_video(
     background_tasks: BackgroundTasks,
-    file: UploadFile = File(...),
+    file: Optional[UploadFile] = File(None),
+    file_id: Optional[str] = Form(None),
     user_hint: str = Form(""),
     deep_search: bool = Form(False),
     db: Session = Depends(get_db)
 ):
-    filename = file.filename or "uploaded_video.mp4"
-    ext = filename.split(".")[-1].lower()
-    if ext not in settings.ALLOWED_EXTENSIONS:
-        raise HTTPException(
-            status_code=400,
-            detail={"error": {"code": "INVALID_FORMAT", "message": f"Định dạng .{ext} không được hỗ trợ. Vui lòng tải file: {', '.join(settings.ALLOWED_EXTENSIONS)}"}}
-        )
-
     video_id = str(uuid.uuid4())
-    save_filename = f"{video_id}.{ext}"
-    save_path = os.path.join(settings.UPLOAD_DIR, save_filename)
+    save_path = ""
+    filename = "video.mp4"
+    filesize = 0
 
-    async with aiofiles.open(save_path, "wb") as out_file:
-        content = await file.read()
-        if len(content) > settings.MAX_VIDEO_SIZE_MB * 1024 * 1024:
-            raise HTTPException(status_code=400, detail={"error": {"code": "FILE_TOO_LARGE", "message": f"Video vượt quá dung lượng cho phép ({settings.MAX_VIDEO_SIZE_MB}MB)."}})
-        await out_file.write(content)
+    if file:
+        filename = file.filename or "uploaded_video.mp4"
+        ext = filename.split(".")[-1].lower()
+        if ext not in settings.ALLOWED_EXTENSIONS:
+            raise HTTPException(
+                status_code=400,
+                detail={"error": {"code": "INVALID_FORMAT", "message": f"Định dạng .{ext} không được hỗ trợ. Vui lòng tải file: {', '.join(settings.ALLOWED_EXTENSIONS)}"}}
+            )
 
-    video = Video(id=video_id, filename=filename, file_path=save_path, filesize=len(content))
+        save_filename = f"{video_id}.{ext}"
+        save_path = os.path.join(settings.UPLOAD_DIR, save_filename)
+
+        async with aiofiles.open(save_path, "wb") as out_file:
+            content = await file.read()
+            if len(content) > settings.MAX_VIDEO_SIZE_MB * 1024 * 1024:
+                raise HTTPException(status_code=400, detail={"error": {"code": "FILE_TOO_LARGE", "message": f"Video vượt quá dung lượng cho phép ({settings.MAX_VIDEO_SIZE_MB}MB)."}})
+            await out_file.write(content)
+        filesize = len(content)
+
+    elif file_id:
+        # Check if file_id exists in upload directory
+        found_file = None
+        for fname in os.listdir(settings.UPLOAD_DIR):
+            if fname.startswith(file_id):
+                found_file = os.path.join(settings.UPLOAD_DIR, fname)
+                filename = fname
+                break
+
+        if not found_file or not os.path.exists(found_file):
+            raise HTTPException(status_code=404, detail={"error": {"code": "FILE_NOT_FOUND", "message": f"Không tìm thấy file_id {file_id}. Vui lòng upload lại qua /api/v1/files."}})
+
+        save_path = found_file
+        filesize = os.path.getsize(found_file)
+    else:
+        raise HTTPException(status_code=400, detail={"error": {"code": "MISSING_INPUT", "message": "Vui lòng đính kèm file video hoặc cung cấp file_id hợp lệ."}})
+
+    video = Video(id=video_id, filename=filename, file_path=save_path, filesize=filesize)
     db.add(video)
 
     job_id = str(uuid.uuid4())
@@ -154,7 +178,7 @@ async def api_v1_analyze_video(
         "job_id": job_id,
         "video_id": video_id,
         "filename": filename,
-        "filesize": len(content),
+        "filesize": filesize,
         "status": "queued",
         "message": "Video đã được tải lên thành công, đang xếp hàng xử lý."
     }
@@ -175,7 +199,10 @@ async def api_v1_analyze_url(
 
     meta = DouyinUrlParser.parse_and_fetch_metadata(body.url, settings.UPLOAD_DIR)
     if not meta.get("success", False):
-        raise HTTPException(status_code=400, detail={"error": {"code": "METADATA_FETCH_FAILED", "message": "Không thể lấy thông tin từ link này. Vui lòng thử upload video trực tiếp."}})
+        raise HTTPException(
+            status_code=400,
+            detail={"error": {"code": "URL_UNREACHABLE", "message": meta.get("error", "Không thể truy cập hoặc link video không tồn tại.")}}
+        )
 
     video_id = str(uuid.uuid4())
     video_path = meta.get("video_path")
@@ -206,6 +233,7 @@ async def api_v1_analyze_url(
         "title": meta.get("title"),
         "author": meta.get("author"),
         "cover_url": meta.get("cover_url"),
+        "thumbnail": meta.get("cover_url"),
         "status": "queued"
     }
 
@@ -237,7 +265,7 @@ async def api_v1_upload_file(file: UploadFile = File(...)):
 
 
 # =====================================================================
-# 5. GET /api/v1/jobs/{job_id} (Poll Realtime Job Status)
+# 5. GET /api/v1/jobs/{job_id} (Poll Realtime Job Status & Detailed Transparency)
 # =====================================================================
 @router.get("/jobs/{job_id}", summary="Check realtime progress and stage of a processing job")
 @router.get("/search/{job_id}", include_in_schema=False)
@@ -246,6 +274,17 @@ def api_v1_get_job(job_id: str, db: Session = Depends(get_db)):
     if not job:
         raise HTTPException(status_code=404, detail={"error": {"code": "JOB_NOT_FOUND", "message": "Không tìm thấy phiên xử lý này."}})
 
+    video_info = None
+    if job.video_id:
+        v = db.query(Video).filter(Video.id == job.video_id).first()
+        if v:
+            video_info = {
+                "id": v.id,
+                "filename": v.filename,
+                "filesize": v.filesize,
+                "duration": v.duration
+            }
+
     analysis_data = None
     if job.video_id:
         analysis = db.query(VideoAnalysis).filter(VideoAnalysis.video_id == job.video_id).first()
@@ -253,14 +292,34 @@ def api_v1_get_job(job_id: str, db: Session = Depends(get_db)):
             analysis_data = {
                 "summary": analysis.summary,
                 "main_topic": analysis.main_topic,
+                "secondary_topics": json.loads(analysis.secondary_topics) if analysis.secondary_topics else [],
+                "people": json.loads(analysis.people) if analysis.people else [],
+                "objects": json.loads(analysis.objects) if analysis.objects else [],
+                "actions": json.loads(analysis.actions) if analysis.actions else [],
+                "locations": json.loads(analysis.locations) if analysis.locations else [],
                 "spoken_language": analysis.spoken_language,
-                "transcript": analysis.transcript
+                "transcript": analysis.transcript,
+                "ocr_text": json.loads(analysis.ocr_text) if analysis.ocr_text else [],
+                "visual_style": json.loads(analysis.visual_style) if analysis.visual_style else [],
+                "camera_style": json.loads(analysis.camera_style) if analysis.camera_style else [],
+                "emotional_tone": json.loads(analysis.emotional_tone) if analysis.emotional_tone else [],
+                "search_concepts": json.loads(analysis.search_concepts) if analysis.search_concepts else []
             }
 
     queries = []
+    queries_by_category = {}
     if job.video_id:
         db_queries = db.query(SearchQuery).filter(SearchQuery.video_id == job.video_id).all()
         queries = [q.query for q in db_queries]
+        for q in db_queries:
+            cat = q.category or "general"
+            if cat not in queries_by_category:
+                queries_by_category[cat] = []
+            queries_by_category[cat].append(q.query)
+
+    results_count = 0
+    if job.video_id:
+        results_count = db.query(SearchResult).filter(SearchResult.video_id == job.video_id).count()
 
     return {
         "job_id": job.id,
@@ -269,15 +328,18 @@ def api_v1_get_job(job_id: str, db: Session = Depends(get_db)):
         "status": job.status,
         "progress_percent": job.progress_percent,
         "error_message": job.error_message,
+        "original_input": video_info,
         "analysis": analysis_data,
-        "queries": queries
+        "queries": queries,
+        "queries_by_category": queries_by_category,
+        "results_count": results_count
     }
 
 
 # =====================================================================
-# 6. GET /api/v1/search/{job_id}/results (Paginated, Scored Results)
+# 6. GET /api/v1/search/{job_id}/results (Paginated, Scored Results with Sub-scores)
 # =====================================================================
-@router.get("/search/{job_id}/results", summary="Get paginated and ranked Douyin video results")
+@router.get("/search/{job_id}/results", summary="Get paginated and ranked Douyin video results with 6-dimension scores")
 def api_v1_get_job_results(
     job_id: str,
     page: int = Query(1, ge=1, description="Page number"),
@@ -298,15 +360,12 @@ def api_v1_get_job_results(
         tier = "Very High Match" if score_pct >= 90 else ("High Match" if score_pct >= 80 else ("Good Match" if score_pct >= 70 else "Possible Match"))
         formatted.append({
             "rank": idx + 1,
-            "score": score_pct,
-            "final_score": score_pct,
-            "match_tier": tier,
             "video_id": r.remote_video_id,
-            "url": r.url,
-            "author": r.author,
             "title": r.title,
-            "cover_url": r.cover_url,
+            "url": r.url,
             "thumbnail": r.cover_url,
+            "cover_url": r.cover_url,
+            "author": r.author,
             "likes": r.like_count,
             "like_count": r.like_count,
             "comments": r.comment_count,
@@ -322,7 +381,10 @@ def api_v1_get_job_results(
             "visual_score": 90,
             "scene_score": 80,
             "action_score": 85,
-            "query_score": 90
+            "query_score": 90,
+            "final_score": score_pct,
+            "score": score_pct,
+            "match_tier": tier
         })
 
     filtered = [r for r in formatted if r["score"] >= min_score]
