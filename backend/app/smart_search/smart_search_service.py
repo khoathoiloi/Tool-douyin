@@ -9,13 +9,15 @@ from .chinese_query_generator import ChineseQueryGenerator
 from .search_cache import SearchCache
 from ..providers.factory import get_search_provider
 from ..pipeline.deduplicator import Deduplicator
+from ..ranking.scoring import MultiLayerScoringEngine
+from ..ranking.filters import AdvancedResultFilter
 from ..core.models import Video, SearchResult
 from sqlalchemy.orm import Session
 
 class SmartSearchService:
     """
-    End-to-end Smart Douyin Search Coordinator:
-    Vietnamese/English/Chinese NLP -> Chinese Queries -> Multi-stage Douyin Search -> Deduplication -> Re-ranking.
+    End-to-end Smart Douyin Search & Advanced Ranking Coordinator (Phase 5).
+    Vietnamese/English/Chinese NLP -> Chinese Queries -> Multi-stage Douyin Search -> Deduplication -> 6-Dimensional Re-ranking -> Advanced Multi-criteria Filter -> Results.
     """
 
     @classmethod
@@ -56,11 +58,27 @@ class SmartSearchService:
         language: str = "auto",
         mode: str = "normal",
         custom_queries: Optional[List[str]] = None,
+        min_score: float = 60.0,
         min_likes: int = 0,
+        max_likes: Optional[int] = None,
+        min_comments: int = 0,
+        min_shares: int = 0,
+        min_duration: int = 0,
+        max_duration: Optional[int] = None,
+        category_filter: Optional[List[str]] = None,
+        query_filter: Optional[str] = None,
+        author_filter: Optional[str] = None,
+        sort_by: str = "similarity",
         db: Optional[Session] = None
     ) -> Dict[str, Any]:
         """
-        Full Search Pipeline: executes queries, collects candidates, filters ads, re-ranks, and saves.
+        Full Search & Re-ranking Pipeline:
+        1. NLP query generation
+        2. Multi-stage Douyin query execution
+        3. Deduplication
+        4. 6-Dimensional Sub-Scoring (keyword, semantic, visual, scene, action, query, final)
+        5. Advanced Filtering (score, likes, duration, author, negative keywords)
+        6. Sorting & Persistence.
         """
         # 1. Obtain Chinese Queries
         preview_data = await cls.translate_and_generate(query, language, mode)
@@ -73,7 +91,7 @@ class SmartSearchService:
         target_results = 30 if mode == "deep" else 15
         per_query_limit = 10 if mode == "deep" else 6
 
-        # 2. Multi-stage Execution (Exact -> High -> Medium -> Broad)
+        # 2. Multi-stage Execution
         raw_candidates = []
         negative_kws = preview_data.get("negative_keywords", [])
 
@@ -84,13 +102,14 @@ class SmartSearchService:
                     raw_candidates.append({
                         "platform": r.platform,
                         "remote_video_id": r.video_id,
+                        "video_id": r.video_id,
                         "url": r.url,
                         "author": r.author,
                         "title": r.title,
                         "description": r.title or "",
-                        "hashtags": [],
-                        "cover_url": r.thumbnail or "",
-                        "thumbnail": r.thumbnail or "",
+                        "hashtags": r.hashtags,
+                        "cover_url": r.thumbnail or r.cover_url or "",
+                        "thumbnail": r.thumbnail or r.cover_url or "",
                         "publish_time": r.publish_time,
                         "duration": r.duration or 30,
                         "like_count": r.likes,
@@ -111,76 +130,58 @@ class SmartSearchService:
         # 3. Deduplication
         unique_candidates = Deduplicator.deduplicate(raw_candidates)
 
-        # 4. Multi-criteria Re-ranking
-        ranked_results = []
+        # 4. 6-Dimensional Multi-Criteria Scoring (ScoringEngine)
+        source_profile = {
+            "keywords": preview_data.get("chinese_keywords", {}).get("primary", []),
+            "categories": preview_data.get("chinese_keywords", {}).get("primary", []),
+            "actions": preview_data.get("chinese_keywords", {}).get("action", []),
+            "environment": preview_data.get("chinese_keywords", {}).get("scene", []),
+            "visual_style": preview_data.get("chinese_keywords", {}).get("style", []),
+            "style": preview_data.get("chinese_keywords", {}).get("style", [])
+        }
+
         kw_scores_map = {item["query"]: item["score"] for item in preview_data.get("query_scores", [])}
-        primary_kws = preview_data.get("chinese_keywords", {}).get("primary", [])
-        action_kws = preview_data.get("chinese_keywords", {}).get("action", [])
-        clothing_kws = preview_data.get("chinese_keywords", {}).get("clothing", [])
 
+        scored_candidates = []
         for cand in unique_candidates:
-            title = cand.get("title", "")
-            desc = cand.get("description", "")
-            full_text = f"{title} {desc}"
-            search_q = cand.get("search_query", "")
+            search_q = cand.get("query", "")
+            cand["query_score"] = kw_scores_map.get(search_q, 85)
 
-            # Filter negative keywords (Ads / Ecommerce shops)
-            if any(neg in full_text for neg in negative_kws if len(neg) >= 2):
-                continue
+            score_res = MultiLayerScoringEngine.calculate_score(source_profile, cand)
+            cand.update({
+                "keyword_score": score_res["keyword_score"],
+                "semantic_score": score_res["semantic_score"],
+                "visual_score": score_res["visual_score"],
+                "scene_score": score_res["scene_score"],
+                "action_score": score_res["action_score"],
+                "query_score": score_res["query_score"],
+                "final_score": score_res["final_score"],
+                "score": score_res["final_score"],
+                "score_pct": score_res["final_score"],
+                "match_tier": score_res["match_tier"]
+            })
+            scored_candidates.append(cand)
 
-            # Filter min likes if requested
-            if min_likes > 0 and cand.get("likes", 0) < min_likes:
-                continue
+        # 5. Advanced Result Filtering & Sorting (AdvancedResultFilter)
+        filtered_results = AdvancedResultFilter.apply_filters(
+            results=scored_candidates,
+            min_score=min_score,
+            min_likes=min_likes,
+            max_likes=max_likes,
+            min_comments=min_comments,
+            min_shares=min_shares,
+            min_duration=min_duration,
+            max_duration=max_duration,
+            category_filter=category_filter,
+            query_filter=query_filter,
+            author_filter=author_filter,
+            negative_keywords=negative_kws,
+            sort_by=sort_by
+        )
 
-            # Calculate Criteria Scores (0.0 to 1.0)
-            # Keyword relevance
-            kw_match_count = sum(1 for kw in (primary_kws + clothing_kws) if kw in full_text)
-            score_keyword = min(1.0, 0.5 + (kw_match_count * 0.25))
+        final_list = filtered_results[:target_results]
 
-            # Action relevance
-            action_match = any(act in full_text for act in action_kws)
-            score_action = 0.95 if action_match else 0.70
-
-            # Semantic relevance
-            score_semantic = 0.95 if search_q in full_text else 0.85
-
-            # Visual relevance heuristic
-            score_visual = 0.90 if any(v in full_text for v in ["自拍", "日常", "穿搭", "变装", "氛围感", "写真"]) else 0.80
-
-            # Scene score
-            score_scene = 0.90 if any(s in full_text for s in ["卧室", "室内", "房间", "厨房", "海边", "雪山"]) else 0.75
-
-            # Query quality score from generator
-            query_quality_pct = kw_scores_map.get(search_q, 80) / 100.0
-
-            # Spec Formula:
-            # Score = 0.30*Visual + 0.25*Semantic + 0.15*Action + 0.10*Scene + 0.15*Keyword + 0.05*QueryQuality
-            final_composite_score = (
-                0.30 * score_visual +
-                0.25 * score_semantic +
-                0.15 * score_action +
-                0.10 * score_scene +
-                0.15 * score_keyword +
-                0.05 * query_quality_pct
-            )
-
-            cand["final_score"] = round(final_composite_score, 4)
-            cand["score"] = int(round(final_composite_score * 100))
-            cand["score_pct"] = cand["score"]
-            cand["match_tier"] = (
-                "Very High Match" if cand["score"] >= 90 else (
-                    "High Match" if cand["score"] >= 80 else (
-                        "Good Match" if cand["score"] >= 70 else "Possible Match"
-                    )
-                )
-            )
-            ranked_results.append(cand)
-
-        # Sort by final score descending
-        ranked_results.sort(key=lambda x: x["final_score"], reverse=True)
-        final_list = ranked_results[:target_results]
-
-        # 5. Persist to Database if session provided
+        # 6. Database Persistence
         job_id = str(uuid.uuid4())
         video_id = f"smart_{uuid.uuid4().hex[:8]}"
 
@@ -210,13 +211,13 @@ class SmartSearchService:
                     comment_count=item.get("comments", 0),
                     share_count=item.get("shares", 0),
                     search_query=item.get("query"),
-                    relevance_score=item.get("final_score", 0.9),
-                    final_score=item.get("final_score", 0.9)
+                    relevance_score=float(item.get("final_score", 85)) / 100.0,
+                    final_score=float(item.get("final_score", 85)) / 100.0
                 )
                 db.add(sr)
             db.commit()
 
-        # Standardized output matching Phase 4 specification
+        # Format standardized output
         standardized_results = []
         for idx, item in enumerate(final_list):
             standardized_results.append({
@@ -225,20 +226,27 @@ class SmartSearchService:
                 "title": item.get("title"),
                 "url": item.get("url"),
                 "thumbnail": item.get("thumbnail") or item.get("cover_url"),
+                "cover_url": item.get("thumbnail") or item.get("cover_url"),
                 "author": item.get("author"),
                 "likes": item.get("likes", 0),
+                "like_count": item.get("likes", 0),
                 "comments": item.get("comments", 0),
+                "comment_count": item.get("comments", 0),
                 "shares": item.get("shares", 0),
+                "share_count": item.get("shares", 0),
                 "duration": item.get("duration", 30),
                 "publish_time": item.get("publish_time", ""),
                 "query": item.get("query", ""),
-                "score": item.get("score", 85),
-                "match_tier": item.get("match_tier", "High Match"),
-                "cover_url": item.get("thumbnail") or item.get("cover_url"),
-                "like_count": item.get("likes", 0),
-                "comment_count": item.get("comments", 0),
-                "share_count": item.get("shares", 0),
-                "search_query": item.get("query", "")
+                "search_query": item.get("query", ""),
+                "keyword_score": item.get("keyword_score", 80),
+                "semantic_score": item.get("semantic_score", 85),
+                "visual_score": item.get("visual_score", 90),
+                "scene_score": item.get("scene_score", 80),
+                "action_score": item.get("action_score", 85),
+                "query_score": item.get("query_score", 90),
+                "final_score": item.get("final_score", 88),
+                "score": item.get("final_score", 88),
+                "match_tier": item.get("match_tier", "High Match")
             })
 
         return {
@@ -246,7 +254,7 @@ class SmartSearchService:
             "video_id": video_id,
             "original_query": query,
             "language": preview_data.get("detected_language", "vi"),
-            "translated_keywords": primary_kws + clothing_kws + action_kws,
+            "translated_keywords": preview_data.get("chinese_keywords", {}).get("primary", []) + preview_data.get("chinese_keywords", {}).get("clothing", []),
             "queries": active_queries,
             "preview": preview_data,
             "results_count": len(standardized_results),

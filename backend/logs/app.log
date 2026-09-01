@@ -230,3 +230,32 @@ AttributeError: 'StandardizedVideoResult' object has no attribute 'description'
 2026-09-01 19:48:21,661 [INFO] PipelineJobRunner: Pipeline completed successfully for video test_vid_001. Found 10 results.
 2026-09-01 19:48:27,726 [INFO] httpx: HTTP Request: POST http://testserver/api/v1/search/smart "HTTP/1.1 200 OK"
 2026-09-01 19:48:27,728 [INFO] httpx: HTTP Request: POST http://testserver/api/v1/query/translate "HTTP/1.1 200 OK"
+2026-09-01 19:51:01,609 [INFO] httpx: HTTP Request: POST http://testserver/api/v1/search/keyword "HTTP/1.1 200 OK"
+2026-09-01 19:51:03,399 [INFO] PipelineJobRunner: Starting pipeline for video b46698e4-6e86-4094-a1c0-e7a509124eba (job 4e8a4ede-c45b-428f-958e-c96b8db585dc)
+2026-09-01 19:51:15,953 [INFO] PipelineJobRunner: Pipeline completed successfully for video b46698e4-6e86-4094-a1c0-e7a509124eba. Found 10 results.
+2026-09-01 19:51:15,955 [INFO] httpx: HTTP Request: POST http://testserver/api/v1/search/url "HTTP/1.1 200 OK"
+2026-09-01 19:51:17,211 [INFO] PipelineJobRunner: Starting pipeline for video f6aa8be2-3a11-46de-b185-0a2fd8524dce (job 7bfac70e-10dd-46f8-aa2e-a3c9a74bfb15)
+2026-09-01 19:51:30,502 [INFO] PipelineJobRunner: Pipeline completed successfully for video f6aa8be2-3a11-46de-b185-0a2fd8524dce. Found 10 results.
+2026-09-01 19:51:30,504 [INFO] httpx: HTTP Request: POST http://testserver/api/v1/analyze/url "HTTP/1.1 200 OK"
+2026-09-01 19:51:30,510 [INFO] PipelineJobRunner: Starting pipeline for video 115541ee-c1f5-490a-867f-35d7d5afd34a (job e4494a0a-962c-4454-9c9c-a388e0f1611c)
+2026-09-01 19:51:44,806 [INFO] PipelineJobRunner: Pipeline completed successfully for video 115541ee-c1f5-490a-867f-35d7d5afd34a. Found 10 results.
+2026-09-01 19:51:44,808 [INFO] httpx: HTTP Request: POST http://testserver/api/v1/analyze/video "HTTP/1.1 200 OK"
+2026-09-01 19:51:44,812 [INFO] httpx: HTTP Request: POST http://testserver/api/v1/history "HTTP/1.1 200 OK"
+2026-09-01 19:51:44,839 [INFO] httpx: HTTP Request: GET http://testserver/api/v1/history "HTTP/1.1 200 OK"
+2026-09-01 19:51:44,849 [INFO] httpx: HTTP Request: DELETE http://testserver/api/v1/history/hist_1a860b4e "HTTP/1.1 200 OK"
+2026-09-01 19:51:46,520 [INFO] PipelineJobRunner: Starting pipeline for video a69b5ad8-9320-4219-adad-ba08fdd2deb3 (job cd8d104d-1084-46fd-8706-e67734058668)
+2026-09-01 19:52:00,540 [INFO] PipelineJobRunner: Pipeline completed successfully for video a69b5ad8-9320-4219-adad-ba08fdd2deb3. Found 10 results.
+2026-09-01 19:52:00,542 [INFO] httpx: HTTP Request: POST http://testserver/api/v1/analyze/url "HTTP/1.1 200 OK"
+2026-09-01 19:52:00,547 [INFO] httpx: HTTP Request: GET http://testserver/api/v1/jobs/cd8d104d-1084-46fd-8706-e67734058668 "HTTP/1.1 200 OK"
+2026-09-01 19:52:00,579 [INFO] httpx: HTTP Request: GET http://testserver/api/v1/search/cd8d104d-1084-46fd-8706-e67734058668/results?page=1&page_size=10 "HTTP/1.1 200 OK"
+2026-09-01 19:52:00,581 [INFO] httpx: HTTP Request: POST http://testserver/api/v1/query/translate "HTTP/1.1 200 OK"
+2026-09-01 19:52:00,583 [INFO] httpx: HTTP Request: POST http://testserver/api/v1/query/generate "HTTP/1.1 200 OK"
+2026-09-01 19:52:08,803 [INFO] httpx: HTTP Request: POST http://testserver/api/v1/search "HTTP/1.1 200 OK"
+2026-09-01 19:52:17,729 [INFO] httpx: HTTP Request: POST http://testserver/api/v1/search "HTTP/1.1 200 OK"
+2026-09-01 19:52:17,732 [INFO] httpx: HTTP Request: GET http://testserver/api/v1/settings "HTTP/1.1 200 OK"
+2026-09-01 19:52:17,735 [INFO] httpx: HTTP Request: PUT http://testserver/api/v1/settings "HTTP/1.1 200 OK"
+2026-09-01 19:52:17,738 [INFO] httpx: HTTP Request: POST http://testserver/api/v1/files "HTTP/1.1 200 OK"
+2026-09-01 19:52:36,825 [INFO] PipelineJobRunner: Starting pipeline for video test_vid_001 (job test_job_001)
+2026-09-01 19:52:50,617 [INFO] PipelineJobRunner: Pipeline completed successfully for video test_vid_001. Found 10 results.
+2026-09-01 19:52:58,544 [INFO] httpx: HTTP Request: POST http://testserver/api/v1/search/smart "HTTP/1.1 200 OK"
+2026-09-01 19:52:58,546 [INFO] httpx: HTTP Request: POST http://testserver/api/v1/query/translate "HTTP/1.1 200 OK"
